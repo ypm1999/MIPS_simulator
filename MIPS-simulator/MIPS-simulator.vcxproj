@@ -116,14 +116,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="memory.cpp" />
-    <ClCompile Include="mips.cpp" />
-    <ClCompile Include="parser.cpp" />
+    <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="MipsSimulator.cpp" />
+    <ClCompile Include="MispParser.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="memory.h" />
-    <ClInclude Include="mips.h" />
-    <ClInclude Include="parser.h" />
+    <ClInclude Include="Exceptions.h" />
+    <ClInclude Include="Format.h" />
+    <ClInclude Include="Memory.h" />
+    <ClInclude Include="MipsSimulator.h" />
+    <ClInclude Include="MispParser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

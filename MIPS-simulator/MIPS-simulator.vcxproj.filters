@@ -18,24 +18,30 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="memory.cpp">
+    <ClCompile Include="MipsSimulator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="mips.cpp">
+    <ClCompile Include="MispParser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="parser.cpp">
+    <ClCompile Include="Memory.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mips.h">
+    <ClInclude Include="MipsSimulator.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="memory.h">
+    <ClInclude Include="MispParser.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="parser.h">
+    <ClInclude Include="Memory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Format.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Exceptions.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
