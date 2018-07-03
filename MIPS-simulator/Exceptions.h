@@ -5,39 +5,19 @@
 #include <cstring>
 #include <string>
 
-namespace sjtu {
-
-class exception {
-protected:
-	const std::string variant = "";
-	std::string detail = "";
+class empty_label {
 public:
-	exception() {}
-	exception(const exception &ec) : variant(ec.variant), detail(ec.detail) {}
-	virtual std::string what() {
-		return variant + " " + detail;
+	empty_label(string name = "Uknown") {
+		cerr << "lebal " << name << " is empty" << endl;
 	}
 };
 
-/**
- * TODO
- * Please complete them.
- */
-class without_text_or_data : public exception {
-	/* __________________________ */
+class command_not_found {
+public:
+	command_not_found(string name = "Uknown") {
+		cerr << "command " << name << " is not found" << endl;
+	}
 };
 
-class runtime_error : public exception {
-	/* __________________________ */
-};
-
-class invalid_iterator : public exception {
-	/* __________________________ */
-};
-
-class container_is_empty : public exception {
-	/* __________________________ */
-};
-}
 
 #endif
