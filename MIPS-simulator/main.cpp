@@ -9,14 +9,14 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-
-#ifdef DEBUG
 	freopen("code.in", "r", stdin);
+#ifdef DEBUG
+	
 	freopen("code.out", "w", stdout);
 #endif
 	__initialization();
-	string source(argv[1]);
-	//string source("code.s");
+	//string source(argv[1]);
+	string source("code.s");
 	ifstream sourceFile(source);
 	if (!sourceFile.is_open()) {
 		std::cerr << "Source code file do not exit!" << std::endl;
