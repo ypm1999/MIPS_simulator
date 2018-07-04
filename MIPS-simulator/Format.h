@@ -4,25 +4,32 @@
 #include <vector>
 #include <string>
 using namespace std;
+//#define DEBUG
 
+const int EXIT_WITHOUT_VALUE = -2;
+const int EXIT_WITH_VALUE = -3;
 const int memorySize = 1024 * 1024 * 16;
 
 union Byte {
 	char i;
 	unsigned char ui;
 	Byte(char _t = 0) :i(_t) {}
+	operator char(){
+		return i;
+	}
 };
+
 union Half{
 	short i;
 	unsigned short ui;
-	struct { Byte b0, b1; };
+	struct {char b0, b1; };
 	Half(short _t = 0) :i(_t) {}
 };
 
 union Word {
 	int i;
 	unsigned int ui;
-	struct { Byte b0, b1, b2, b3; };
+	struct { char b0, b1, b2, b3; };
 	Word(int _t = 0) :i(_t) {}
 };
 
@@ -33,16 +40,16 @@ enum class DataType:char {
 enum class CommandType:char  {
 	_label,
 	_add, _addu, _addiu, _sub, _subu, _subiu,
-	_mul, _mulu, _div, _divu, 
-	_xor, _xoru, _neg, _negu, _rem, _remu, 
-	_seq, _sge, _sgt, _sle, _slt, _sne, 
-	_b, _beq, _bne, _bge, _ble, _bgt, _blt, 
-	_beqz, _bnez, _bgez, _blez, _bgtz, _bltz, 
-	_j, _jr, _jal, _jalr, 
-	_li, _la, _lb, _lh, _lw, 
-	_sb, _sh, _sw, 
-	_move, _mfhi, _mflo, 
-	_nop, _syscall, 
+	_mul, _mulu, _div, _divu,
+	_xor, _xoru, _neg, _negu, _rem, _remu,
+	_seq, _sge, _sgt, _sle, _slt, _sne,
+	_b, _beq, _bne, _bge, _ble, _bgt, _blt,
+	_beqz, _bnez, _bgez, _blez, _bgtz, _bltz,
+	_j, _jr, _jal, _jalr,
+	_li, _la, _lb, _lh, _lw,
+	_sb, _sh, _sw,
+	_move, _mfhi, _mflo,
+	_nop, _syscall,
 	none
 };
 
@@ -56,7 +63,7 @@ public:
 		:_type(d), address(ad){}
 	~Data() = default;
 	void out() {
-		printf("data: %d %d\n", _type, address);
+		printf("data: %d %d\n", _type, address.i);
 	}
 };
 
@@ -71,7 +78,8 @@ public:
 		:_type(c), rs(r1), rd(r2), rt(r3), cons(con), address(ad), offset(of) {}
 	~Command() = default;
 	void out() {
-		printf("command: %d %d %d %d %d %d %d\n", _type, rs, rd, rt, cons, address, offset);
+		printf("command: %d %d %d %d %d %d %d\n", _type, rs.i, rd.i, rt.i, cons.i, address.i, offset.i);
+	//	printf("command: %d %d %d\n", _type, address.i, offset.i);
 	}
 };
 //
@@ -201,4 +209,3 @@ void __initialization() {
 
 
 #endif // !__Formats
-

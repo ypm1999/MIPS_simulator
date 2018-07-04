@@ -1,6 +1,7 @@
 #ifndef __MipsSimulator
 #define __MipsSimulator
 
+#include <algorithm>
 #include "Format.h"
 #include "MispParser.h"
 
@@ -8,7 +9,7 @@
 class MipsSimulator {
 	MipsParser *code;
 	Memory *mem;
-	Word reg[32 + 2];
+	Word reg[32 + 3];
 	Word &hi = reg[32];
 	Word &lo = reg[33];
 
@@ -40,30 +41,38 @@ class MipsSimulator {
 			break;
 		//--------------------------# mul and div #---------------------
 		case CommandType::_mul:
-			if (com.rt.ui != 255)
+			if (com.rs.ui != 255)
 				reg[com.rs.ui].i = reg[com.rd.ui].i * tmp.i;
 			else {
-				long long t = 1ll * reg[com.rd.ui].i * com.cons.i;
+				unsigned long long t = 1ll * reg[com.rd.ui].i * tmp.i;
 				hi.i = t >> 32;
-				lo.i = (int)t;
+				lo.i = (unsigned int)t;
 			}
 			break;
 		case CommandType::_mulu:
-			if (com.rt.ui != 255)
+			if (com.rs.ui != 255)
 				reg[com.rs.ui].ui = reg[com.rd.ui].ui * tmp.ui;
 			else {
-				unsigned long long t = 1ll * reg[com.rd.ui].ui * com.cons.ui;
+				unsigned long long t = 1llu * reg[com.rd.ui].ui * tmp.ui;
 				hi.ui = t >> 32;
 				lo.ui = (unsigned int)t;
 			}
 			break;
 		case CommandType::_div:
-			lo.i = reg[com.rd.ui].i / tmp.i;
-			hi.i = reg[com.rd.ui].i - lo.i * tmp.i;
+			if (com.rs.ui != 255)
+				reg[com.rs.ui].i = reg[com.rd.ui].i / tmp.i;
+			else {
+				lo.i = reg[com.rd.ui].i / tmp.i;
+				hi.i = reg[com.rd.ui].i - lo.i * tmp.i;
+			}
 			break;
 		case CommandType::_divu:
-			lo.ui = reg[com.rd.ui].ui / tmp.ui;
-			hi.ui = reg[com.rd.ui].ui - lo.ui * tmp.ui;
+			if (com.rs.ui != 255)
+				reg[com.rs.ui].ui = reg[com.rd.ui].ui / tmp.ui;
+			else {
+				lo.ui = reg[com.rd.ui].ui / tmp.ui;
+				hi.ui = reg[com.rd.ui].ui - lo.ui * tmp.ui;
+			}
 			break;
 		//------------------------# xor #----------------------
 		case CommandType::_xor:
@@ -75,8 +84,10 @@ class MipsSimulator {
 		//----------------------# negitave #---------------
 		case CommandType::_neg:
 			reg[com.rs.ui].i = -reg[com.rd.ui].i;
+			break;
 		case CommandType::_negu:
 			reg[com.rs.ui].ui = ~reg[com.rd.ui].ui;
+			break;
 		//----------------------# %(rest) #---------------
 		case CommandType::_rem:
 			reg[com.rs.ui].i = reg[com.rd.ui].i % tmp.i;
@@ -87,6 +98,7 @@ class MipsSimulator {
 		//----------------------# load imm #---------------
 		case CommandType::_li:
 			reg[com.rs.ui].i = com.cons.i;
+			break;
 		//----------------------# cmp #---------------
 		case CommandType::_seq:
 			reg[com.rs.ui].i = reg[com.rd.ui].i == tmp.i;
@@ -106,10 +118,11 @@ class MipsSimulator {
 		case CommandType::_sne:
 			reg[com.rs.ui].i = reg[com.rd.ui].i != tmp.i;
 			break;
-		
+
 		//----------------------# branch #---------------
 		case CommandType::_b:
 			return ad;
+			break;
 		case CommandType::_beq:
 			if (reg[com.rd.ui].i == tmp.i)
 				return ad;
@@ -159,18 +172,22 @@ class MipsSimulator {
 			if (reg[com.rd.ui].i < 0)
 				return ad;
 			break;
-		
+
 		//----------------------# jump #---------------
 		case CommandType::_j:
 			return ad;
+			break;
 		case CommandType::_jr:
 			return reg[com.rs.ui];
+			break;
 		case CommandType::_jal:
 			reg[31] = i + 1;
 			return ad;
+			break;
 		case CommandType::_jalr:
 			reg[31] = i + 1;
 			return reg[com.rs.ui];
+			break;
 		//----------------------# move #---------------
 		case CommandType::_move:
 			reg[com.rs.ui] = reg[com.rd.ui];
@@ -211,41 +228,54 @@ class MipsSimulator {
 			switch (reg[2].i) {
 			case 1:
 				std::cout << reg[4].i;
+				break;
 			case 4:
 				std::cout << mem->getString(reg[4]);
+				break;
 			case 5:
-				std::cin >> reg[4].i;
+				std::cin >> reg[2].i;
+				break;
 			case 8: {
-				string s;
-				std::cin >> s;
-				mem->writeString(reg[4], reg[5].i, s.c_str());
+				string str;
+				std::cin >> str;
+				mem->writeString(reg[4], reg[5].i, str);
+				break;
 			}
 			case 9:
 				mem->algin(2);
 				reg[2] = mem->getSpace(reg[4].i);
+				break;
 			case 10:
-				return -1;
+				return EXIT_WITHOUT_VALUE;
+				break;
 			case 17:
-				return -2;
+				return EXIT_WITH_VALUE;
+				break;
 			default:
 				throw run_command_error("syscall");
 			}
+			break;
 		}
 
 		case CommandType::none:
 		default:
 			throw command_not_found();
 		}
+		return -1;
 	}
 
-	Word runBlock(const Word &adress){
-		const Command &tmp = code->command[adress.ui];
-		for (int i = tmp.address.i; i < tmp.offset.i; i++) {
+	Word runBlock(const Word &address){
+		for (int i = address.i; i < code->command.size(); i++) {
 			Word next = runCommand(i);
-			if (next.i != 0)
+			if (next.i != -1)
 				return next;
 		}
 		return 0x3fffffff;
+	}
+
+	void __init() {
+		memset(reg, 0, sizeof(reg));
+		reg[29] = mem->top();
 	}
 
 public:
@@ -253,22 +283,27 @@ public:
 		:code(_code), mem(_mem) {}
 
 	bool run(int &value) {
+		__init();
 		auto main = code->commandMap.find("main");
 		if (main == code->commandMap.end())
 			throw without_main();
 		auto now = (*main).second;
 		while (true) {
+			string name = code->getname(now);
 			Word next = runBlock(now);
-			if (next.i == -1)
-				return true;
-			if (next.i == -2) {
+			if (next.i == EXIT_WITHOUT_VALUE)
+				return false;
+			if (next.i == EXIT_WITH_VALUE) {
 				value = reg[4].i;
 				return true;
 			}
-			if (next.i < 0 || next.i > code->command.size())
-				return false;
+			if (next.i < 0 || next.ui > code->command.size()) {
+				throw command_address_error(next.i);
+			}
+
 			now = next;
 		}
+		throw command_address_error(-1);
 	}
 };
 

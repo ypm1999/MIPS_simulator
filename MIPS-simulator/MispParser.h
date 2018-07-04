@@ -9,7 +9,6 @@
 #include "Memory.h"
 #include "Exceptions.h"
 using namespace std;
-#define DEBUG
 
 // TODO: Format the text into entries
 class MipsParser {
@@ -21,7 +20,7 @@ class MipsParser {
 	map<string, vector<size_t>> table;
 
 	string getSingleString(unsigned int &pos) const{
-		while (s[pos] == ' ' || s[pos] == ',' || s[pos] == '\t' || s[pos] == '\n' || s[pos] == '_r' || s[pos] == '#') {
+		while (s[pos] == ' ' || s[pos] == ',' || s[pos] == '\t' || s[pos] == '\n' || s[pos] == '\r' || s[pos] == '#') {
 			if(s[pos] == '#')
 				while (s[pos] != '\n')
 				pos++;
@@ -103,9 +102,9 @@ class MipsParser {
 			return std::move(res);
 		}
 		res._type = (*it).second;
-		
+
 		switch (res._type) {
-		
+
 		case DataType::_ascii: {
 			string data = getSingleString(pos);
 			res.address = mem.getSpace(data.length(), data.c_str());
@@ -170,7 +169,7 @@ class MipsParser {
 		default :
 			throw command_not_found(tmp);
 		}
-		
+
 		return std::move(res);
 	}
 
@@ -192,18 +191,18 @@ class MipsParser {
 		case CommandType::_addu:
 		case CommandType::_sub:
 		case CommandType::_subu:
+		case CommandType::_addiu:
+		case CommandType::_subiu:
 		case CommandType::_xor:
 		case CommandType::_xoru:
 		case CommandType::_rem:
 		case CommandType::_remu:
 		case CommandType::_seq:
 		case CommandType::_sge:
-		case CommandType::_sgt: 
+		case CommandType::_sgt:
 		case CommandType::_sle:
 		case CommandType::_slt:
-		case CommandType::_sne:
-		case CommandType::_addiu:
-		case CommandType::_subiu: {
+		case CommandType::_sne: {
 			string rs = getSingleString(pos);
 			string rd = getSingleString(pos);
 			string rt = getSingleString(pos);
@@ -215,7 +214,7 @@ class MipsParser {
 				res.cons = stoi(rt);
 			break;
 		}
-			
+
 		//rs rd
 		case CommandType::_neg:
 		case CommandType::_negu:
@@ -235,8 +234,9 @@ class MipsParser {
 			string rd = getSingleString(pos);
 			int lastpos = pos;
 			string rt = getSingleString(pos);
-			res.rs = regMap[rs];
+
 			if (rt[0] == '$' || (rt[0] >= '0' && rt[0] <= '9')) {
+				res.rs = regMap[rs];
 				res.rd = regMap[rd];
 				if (rt[0] == '$')
 					res.rt = regMap[rt];
@@ -245,8 +245,9 @@ class MipsParser {
 			}
 			else {
 				pos = lastpos;
+				res.rd = regMap[rs];
 				if (rd[0] == '$')
-					res.rd = regMap[rd];
+					res.rt = regMap[rd];
 				else
 					res.cons = stoi(rd);
 			}
@@ -260,11 +261,11 @@ class MipsParser {
 			res.cons = stoi(con);
 			break;
 		}
-								
+
 		//rs
 		case CommandType::_mfhi:
 		case CommandType::_mflo:
-		case CommandType::_jr: 
+		case CommandType::_jr:
 		case CommandType::_jalr: {
 			string rs = getSingleString(pos);
 			res.rs = regMap[rs];
@@ -273,7 +274,7 @@ class MipsParser {
 
 		//label
 		case CommandType::_b:
-		case CommandType::_j: 
+		case CommandType::_j:
 		case CommandType::_jal: {
 			string label = getSingleString(pos);
 			table[label].push_back(command.size());
@@ -305,18 +306,21 @@ class MipsParser {
 			string rt = getSingleString(pos);
 			string label = getSingleString(pos);
 			table[label].push_back(command.size());
-			res.rt = regMap[rt];
 			res.rd = regMap[rd];
+			if (rt[0] == '$')
+				res.rt = regMap[rt];
+			else
+				res.cons = stoi(rt);
 			break;
 		}
-				
+
 		//rs address
 		case CommandType::_la:
-		case CommandType::_lb: 
-		case CommandType::_lh: 
-		case CommandType::_lw: 
-		case CommandType::_sb: 
-		case CommandType::_sh: 
+		case CommandType::_lb:
+		case CommandType::_lh:
+		case CommandType::_lw:
+		case CommandType::_sb:
+		case CommandType::_sh:
 		case CommandType::_sw: {
 			string rs = getSingleString(pos);
 			string ad = getSingleString(pos);
@@ -343,7 +347,7 @@ class MipsParser {
 			break;
 		}
 
-		case CommandType::_nop: 
+		case CommandType::_nop:
 		case CommandType::_syscall:
 		case CommandType::none:
 			break;
@@ -354,7 +358,7 @@ class MipsParser {
 	}
 
 	Word getDataBlock(unsigned int &pos, Memory &mem) const {
-		Word ad;
+		Word ad(-1);
 		while (true) {
 			unsigned int lastpos = pos;
 			Data tmp = getData(pos, mem);
@@ -362,9 +366,6 @@ class MipsParser {
 				pos = lastpos;
 				break;
 			}
-#ifdef DEBUG
-			tmp.out();
-#endif
 			if (ad.i == -1)
 				ad = tmp.address;
 		}
@@ -374,25 +375,20 @@ class MipsParser {
 	}
 
 	Word getCommandBlock(unsigned int &pos, Memory &mem){
-		command.push_back(Command(CommandType::_label, 255, 255, 255, 0, command.size()));
-		Command &tmp = command[command.size() - 1];
+		int tmp = command.size() ;
 		while (true) {
 			unsigned int lastpos = pos;
-			Command tmp = getCommand(pos);
-#ifdef DEBUG
-			tmp.out();
-#endif
-			if (tmp._type == CommandType::none) {
+			Command t = getCommand(pos);
+			if (t._type == CommandType::none) {
 				pos = lastpos;
 				break;
 			}
-			command.push_back(tmp);
+			command.push_back(t);
 		}
-		tmp.offset = command.size();
-		return tmp.address.i - 1;
+		return tmp;
 	}
 public:
-	
+
 	MipsParser(const string &str) :s(str) {}
 	~MipsParser() = default;
 
@@ -456,8 +452,23 @@ public:
 			cerr << "Unknow Error with parser!" << endl;
 			return false;
 		}
+#ifdef DEBUG
+
+		for(int i = 0; i < command.size(); i++) {
+			string na = getname(i);
+			if(na != "none")
+				cout << na << ":  ";
+			command[i].out();
+		}
+
+#endif
 		return true;
+	}
+	string getname(Word address) {
+		for (auto j : commandMap)
+			if (j.second.i == address.i)
+				return j.first;
+		return "none";
 	}
 };
 #endif // !__MipsParser
-

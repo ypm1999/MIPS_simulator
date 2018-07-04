@@ -53,4 +53,18 @@ public:
 		cerr << "Error! Run " << name << " command error!!" << endl;
 	}
 };
+
+class command_address_error {
+public:
+	command_address_error(int ad) {
+		cerr << "Error! Command address("<< ad <<") error!!" << endl;
+	}
+};
+
+class read_out_of_bound {
+public:
+	read_out_of_bound(string name = "Unknown") {
+		cerr << "Erroe! Write " << name << " at somewhere have not applied!" << endl;
+	}
+};
 #endif
