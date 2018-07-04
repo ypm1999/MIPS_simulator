@@ -5,32 +5,33 @@
 #include <string>
 using namespace std;
 
+const int memorySize = 1024 * 1024 * 16;
+
 union Byte {
 	char i;
 	unsigned char ui;
 	Byte(char _t = 0) :i(_t) {}
 };
-
 union Half{
 	short i;
 	unsigned short ui;
-	struct { Byte b[2]; };
+	struct { Byte b0, b1; };
 	Half(short _t = 0) :i(_t) {}
-	
 };
 
 union Word {
 	int i;
 	unsigned int ui;
-	struct { Byte b[4]; };
-	Word(int _t  = 0) :i(_t) {}
+	struct { Byte b0, b1, b2, b3; };
+	Word(int _t = 0) :i(_t) {}
 };
 
 enum class DataType:char {
-	_ascii, _assciz, _byte, _half, _word, _space, none
+	_ascii, _asciiz, _byte, _half, _word, _space, _align, none
 };
 
 enum class CommandType:char  {
+	_label,
 	_add, _addu, _addiu, _sub, _subu, _subiu,
 	_mul, _mulu, _div, _divu, 
 	_xor, _xoru, _neg, _negu, _rem, _remu, 
@@ -49,12 +50,14 @@ class Data {
 	friend class MipsParser;
 	friend class MipsSimulator;
 	DataType _type;
-	Word address, length;
-	
+	Word address;
 public:
-	Data(DataType d = DataType::none, Word ad = -1, Word l = 0, string s = "")
-		:_type(d), address(ad), length(l){}
+	Data(DataType d = DataType::none, Word ad = -1)
+		:_type(d), address(ad){}
 	~Data() = default;
+	void out() {
+		printf("data: %d %d\n", _type, address);
+	}
 };
 
 class Command {
@@ -62,39 +65,41 @@ class Command {
 	friend class MipsSimulator;
 	CommandType _type;
 	Byte rs, rd, rt;
-	Word cons, offset, address;
-	string label;
+	Word cons, address, offset;
 public:
-	Command(CommandType c = CommandType::none, Byte r1 = 255, Byte r2 = 255, Byte r3 = 255, Word con = 0, Word ad = -1, Word of = 0, string s = "")
-		:_type(c), rs(r1), rd(r2), rt(r3), cons(con), address(ad), offset(of), label(s) {}
+	Command(CommandType c = CommandType::none, Byte r1 = 255, Byte r2 = 255, Byte r3 = 255, Word con = 0, Word ad = -1, Word of = 0)
+		:_type(c), rs(r1), rd(r2), rt(r3), cons(con), address(ad), offset(of) {}
 	~Command() = default;
+	void out() {
+		printf("command: %d %d %d %d %d %d %d\n", _type, rs, rd, rt, cons, address, offset);
+	}
 };
-
-class CommandBlock {
-	friend class MipsParser;
-	friend class MipsSimulator;
-	std::string name;
-	vector<Command> data;
-public:
-	CommandBlock(string na = "") :name(na) {}
-	~CommandBlock() = default;
-};
-
-class DataBlock {
-	friend class MipsParser;
-	friend class MipsSimulator;
-	std::string name;
-	vector<Data> data;
-public:
-	DataBlock(std::string na = "") :name(na) {}
-	~DataBlock() = default;
-};
+//
+//class CommandBlock {
+//	friend class MipsParser;
+//	friend class MipsSimulator;
+//	std::string name;
+//	Word address;
+//public:
+//	CommandBlock(string na = "") :name(na), address(-1) {}
+//	~CommandBlock() = default;
+//};
+//
+//class DataBlock {
+//	friend class MipsParser;
+//	friend class MipsSimulator;
+//	std::string name;
+//	Word address;
+//public:
+//	DataBlock(std::string na = "") :name(na), address(-1) {}
+//	~DataBlock() = default;
+//};
 
 map<string, CommandType> commandNameMap;
 map<string, DataType> dataNameMap;
 map<string, Byte> regMap;
 
-void __inittialization() {
+void __initialization() {
 	regMap[""] = -1;
 	for(int i = 0; i < 32; i++)
 		regMap[string("$") + to_string(i)] = i;
@@ -133,11 +138,12 @@ void __inittialization() {
 
 	dataNameMap[""] = DataType::none;
 	dataNameMap[".ascii"] = DataType::_ascii;
-	dataNameMap[".assciz"] = DataType::_assciz;
+	dataNameMap[".asciiz"] = DataType::_asciiz;
 	dataNameMap[".byte"] = DataType::_byte;
 	dataNameMap[".half"] = DataType::_half;
 	dataNameMap[".word"] = DataType::_word;
 	dataNameMap[".space"] = DataType::_space;
+	dataNameMap[".align"] = DataType::_align;
 	commandNameMap[""] = CommandType::none;
 	commandNameMap["add"] = CommandType::_add;
 	commandNameMap["addu"] = CommandType::_addu;
@@ -153,17 +159,21 @@ void __inittialization() {
 	commandNameMap["xoru"] = CommandType::_xoru;
 	commandNameMap["neg"] = CommandType::_neg;
 	commandNameMap["negu"] = CommandType::_negu;
-	commandNameMap["rem"] = CommandType::_remu;
+	commandNameMap["rem"] = CommandType::_rem;
+	commandNameMap["remu"] = CommandType::_remu;
 	commandNameMap["seq"] = CommandType::_seq;
 	commandNameMap["sge"] = CommandType::_sge;
 	commandNameMap["sgt"] = CommandType::_sgt;
 	commandNameMap["sle"] = CommandType::_sle;
 	commandNameMap["slt"] = CommandType::_slt;
 	commandNameMap["sne"] = CommandType::_sne;
-	commandNameMap["b"] = CommandType::_beq;
-	commandNameMap["bne"] = CommandType::_bge;
+	commandNameMap["b"] = CommandType::_b;
+	commandNameMap["beq"] = CommandType::_beq;
+	commandNameMap["bne"] = CommandType::_bne;
+	commandNameMap["bge"] = CommandType::_bge;
 	commandNameMap["ble"] = CommandType::_ble;
-	commandNameMap["bgt"] = CommandType::_blt;
+	commandNameMap["bgt"] = CommandType::_bgt;
+	commandNameMap["blt"] = CommandType::_blt;
 	commandNameMap["beqz"] = CommandType::_beqz;
 	commandNameMap["bnez"] = CommandType::_bnez;
 	commandNameMap["bgez"] = CommandType::_bgez;
@@ -176,7 +186,8 @@ void __inittialization() {
 	commandNameMap["jalr"] = CommandType::_jalr;
 	commandNameMap["li"] = CommandType::_li;
 	commandNameMap["la"] = CommandType::_la;
-	commandNameMap["lb"] = CommandType::_lh;
+	commandNameMap["lb"] = CommandType::_lb;
+	commandNameMap["lh"] = CommandType::_lh;
 	commandNameMap["lw"] = CommandType::_lw;
 	commandNameMap["sb"] = CommandType::_sb;
 	commandNameMap["sh"] = CommandType::_sh;
