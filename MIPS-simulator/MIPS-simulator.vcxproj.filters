@@ -18,13 +18,13 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MipsSimulator.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Memory.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MipsParser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MipsSimulator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

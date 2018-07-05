@@ -119,8 +119,8 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Memory.cpp" />
-    <ClCompile Include="MipsSimulator.cpp" />
     <ClCompile Include="MipsParser.cpp" />
+    <ClCompile Include="MipsSimulator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exceptions.h" />
