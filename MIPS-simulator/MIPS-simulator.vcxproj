@@ -120,14 +120,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="MipsSimulator.cpp" />
-    <ClCompile Include="MispParser.cpp" />
+    <ClCompile Include="MipsParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="Format.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="MipsSimulator.h" />
-    <ClInclude Include="MispParser.h" />
+    <ClInclude Include="MipsParser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

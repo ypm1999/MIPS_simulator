@@ -1,9 +1,12 @@
-#ifndef SJTU_EXCEPTIONS_HPP
-#define SJTU_EXCEPTIONS_HPP
+#ifndef _Expections
+#define _Expections
 
-#include <cstddef>
-#include <cstring>
+
+#include <iostream>
 #include <string>
+using std::string;
+using std::cerr;
+using std::endl;
 
 class empty_label {
 public:
@@ -67,4 +70,5 @@ public:
 		cerr << "Erroe! Write " << name << " at somewhere have not applied!" << endl;
 	}
 };
-#endif
+
+#endif // !_Expections
