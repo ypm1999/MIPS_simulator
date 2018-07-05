@@ -5,7 +5,8 @@ import platform
 
 exe = "./bin/main"
 
-header = "./testsuit-1/"
+header1 = "../testsuit-1/"
+header1 = "../testsuit-2/"
 cases = [
     "lvalue2-5110379024-wuhang",
     "gcd-5090379042-jiaxiao",
@@ -53,7 +54,7 @@ else:
     print "Unknown System"
     exit(0)
 
-def testCase(name):
+def testCase(header, name):
     argList = []
     argList.append(exe)
     argList.append(header + name + '.s')
@@ -82,12 +83,19 @@ def main():
 
     end = min(len(cases), end)
     for i in range(start, end):
-        print "TEST  %-40s" % cases[i],
+        print "TEST  test1-%-40s" % cases[i],
         sys.stdout.flush()
-        if not testCase(cases[i]):
+        if not testCase(header1, cases[i]):
             break
         os.remove(cases[i] + '.out')
-        print "passed"
+        print "passed\n"
+	for i in range(start, end):
+        print "TEST  test2-%-40s" % cases[i],
+        sys.stdout.flush()
+        if not testCase(header2, cases[i]):
+            break
+        os.remove(cases[i] + '.out')
+        print "passed\n"
 
 if __name__ == '__main__':
     main()

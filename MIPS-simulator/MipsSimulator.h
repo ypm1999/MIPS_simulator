@@ -12,6 +12,7 @@ class MipsSimulator {
 	MipsParser *code;
 	Memory *mem;
 	Word reg[32 + 3];
+	bool regLock[32];
 	Word &hi = reg[32];
 	Word &lo = reg[33];
 	Word &pc = reg[34];
@@ -29,32 +30,46 @@ class MipsSimulator {
 
 	class IF_ID {
 		friend class MipsSimulator;
-		Word IR, npc;
+		Word res1, res2;
+		int npc;
+		Byte load, EXreg, MEMreg;
+		Word EXdata, MEMdata;
+		void init();
 	}IFID[2];
 	class ID_EX {
 		friend class MipsSimulator;
+		int npc;
 		CommandType com;
 		Word a, b, imm;
 		Byte res;
+		void init();
 	}IDEX[2];
 	class EX_MEM {
 		friend class MipsSimulator;
 		CommandType com;
 		Word ALUout;
 		Byte res;
+		void init();
 	}EXMEM[2];
 	class MEM_WB {
 		friend class MipsSimulator;
 		CommandType com;
 		Word ALUout;
 		Byte res;
+		void init();
 	}MEMWB[2];
 
-	void IF(IF_ID &write);
-	void ID(const IF_ID &get, ID_EX &write);
-	void EX(const ID_EX &get, EX_MEM  &write);
-	void MEM(const EX_MEM &get, MEM_WB &write);
-	void WB(const MEM_WB &get);
+
+	bool getReg(const IF_ID & in, const char & id, Word & res) const;
+
+	bool IF(IF_ID & write, bool & mem_access);
+
+	bool ID(const IF_ID & get, ID_EX & write);
+
+	
+	bool EX(const ID_EX &get, EX_MEM  &write);
+	bool MEM(const EX_MEM &get, MEM_WB &write, bool &mem_access);
+	bool WB(const MEM_WB &get);
 
 public:
 	MipsSimulator(MipsParser *_code = nullptr, Memory *_mem = nullptr);

@@ -25,10 +25,10 @@ int main(int argc, char *argv[]) {
 	}
 	stringstream buffer;
 	buffer << sourceFile.rdbuf();
-	unique_ptr<MipsParser> Parser(new MipsParser(buffer.str()));
 	unique_ptr<Memory> mem(new Memory);
+	unique_ptr<MipsParser> Parser(new MipsParser(buffer.str(), mem.get()));
 	unique_ptr<MipsSimulator> program(new MipsSimulator(Parser.get(), mem.get()));
-	Parser->parser(*mem);
+	Parser->parser();
 #ifdef DEBUG
 	return 0;
 #endif

@@ -39,14 +39,19 @@ Word Memory::getSpace(const Half &_data) {
 	return used - 2;
 }
 
+
+
+
 Word Memory::getSpace(const Word &_data) {
 	if (used + 4 > size)
 		throw memory_used_up();
-	data[used++] = _data.b0;
-	data[used++] = _data.b1;
-	data[used++] = _data.b2;
-	data[used++] = _data.b3;
+	memcpy(data + used, &_data.ui, 4);
 	return used - 4;
+}
+
+Word Memory::getSpace(const unsigned long long & _data) {
+	memcpy(data + used, &_data, 8);
+	return used - 8;
 }
 
 void Memory::writeByte(const Word &address, const Byte &_data) {
@@ -59,11 +64,9 @@ void Memory::writeHalf(const Word &address, const Half &_data) {
 }
 
 void Memory::writeWord(const Word &address, const Word &_data) {
-	data[address.i] = _data.b0;
-	data[address.i + 1] = _data.b1;
-	data[address.i + 2] = _data.b2;
-	data[address.i + 3] = _data.b3;
+	memcpy(data + used, &_data.ui, 4);
 }
+
 
 void Memory::writeString(const Word &address, const int &len, const string &str) {
 	if (len < (int)str.length() + 1)

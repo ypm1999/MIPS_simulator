@@ -71,4 +71,14 @@ public:
 	}
 };
 
+class without_text_or_data {
+public:
+	without_text_or_data() {
+		std::cerr << "ERROR! Code don't have .text or .data at beginning!" << endl;
+	}
+};
+
+
+
+
 #endif // !_Expections
