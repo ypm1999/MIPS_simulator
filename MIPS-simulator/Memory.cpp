@@ -1,7 +1,6 @@
 #include "Memory.h"
 
-
-Word Memory::getSpace(const int &len, const Byte _data[]) {
+Word Memory::getSpace(const unsigned int &len, const Byte _data[]) {
 	if (used + len > size)
 		throw memory_used_up();
 	memcpy(data + used, _data, len);
@@ -9,7 +8,7 @@ Word Memory::getSpace(const int &len, const Byte _data[]) {
 	return used - len;
 }
 
-Word Memory::getSpace(const int &len, const char _data[]) {
+Word Memory::getSpace(const unsigned int &len, const char _data[]) {
 	if (used + len > size)
 		throw memory_used_up();
 	memcpy(data + used, _data, len);
@@ -17,7 +16,7 @@ Word Memory::getSpace(const int &len, const char _data[]) {
 	return used - len;
 }
 
-Word Memory::getSpace(const int &len) {
+Word Memory::getSpace(const unsigned int &len) {
 	if (used + len > size)
 		throw memory_used_up();
 	used += len;
@@ -39,23 +38,23 @@ Word Memory::getSpace(const Half &_data) {
 	return used - 2;
 }
 
-
-
-
 Word Memory::getSpace(const Word &_data) {
 	if (used + 4 > size)
 		throw memory_used_up();
 	memcpy(data + used, &_data.ui, 4);
+	used += 4;
 	return used - 4;
 }
 
 Word Memory::getSpace(const unsigned long long & _data) {
 	memcpy(data + used, &_data, 8);
+	used += 8;
 	return used - 8;
 }
 
+
 void Memory::writeByte(const Word &address, const Byte &_data) {
-	data[address.i] = _data.i;
+	data[address.ui] = _data.i;
 }
 
 void Memory::writeHalf(const Word &address, const Half &_data) {
@@ -64,15 +63,15 @@ void Memory::writeHalf(const Word &address, const Half &_data) {
 }
 
 void Memory::writeWord(const Word &address, const Word &_data) {
-	memcpy(data + used, &_data.ui, 4);
+	memcpy(data + address.ui, &_data.ui, 4);
 }
 
-
-void Memory::writeString(const Word &address, const int &len, const string &str) {
-	if (len < (int)str.length() + 1)
+void Memory::writeString(const Word &address, const unsigned int &len, const string &str) {
+	if (len < str.length())
 		throw write_out_of_bound();
-	memcpy(data + address.i, str.c_str(), str.length() + 1);
+	memcpy(data + address.ui, str.c_str(), str.length());
 }
+
 
 void Memory::algin(const int &n) {
 	if (((used >> n) << n) != used)
@@ -80,6 +79,8 @@ void Memory::algin(const int &n) {
 	if (used > size)
 		throw memory_used_up();
 }
+
+
 Byte Memory::getByte(const Word &address) const {
 	return data[address.ui];
 }
@@ -109,17 +110,14 @@ string Memory::getString(const Word &address) const {
 	return s;
 }
 
-int Memory::top() const {
-	return size - 1;
-}
 
 void Memory::out() const {
-	for (int i = 0; i < used; i++) {
+	for (unsigned int i = 0; i < used; i++) {
 		std::cout << (unsigned int)data[i] << " \n"[i % 10 == 0];
 	}
 }
 
-Memory::Memory(int _size) :used(0), size(_size) {
+Memory::Memory(unsigned int _size) :used(commandSize), size(_size) {
 	data = new Byte[_size];
 	memset(data, 0, size);
 }

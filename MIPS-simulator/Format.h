@@ -3,16 +3,19 @@
 
 //#define DEBUG
 #include <string>
-const int commandSize = 8;
+const unsigned int commandSize = 8;
 
+union Word;
+union Half;
 
 union Byte {
 	char i;
 	unsigned char ui;
+	struct { unsigned char b0; };
 	Byte(char _t = 0) :i(_t) {}
-	operator char(){
-		return i;
-	}
+	operator unsigned char(){ return (unsigned char)i; }
+	//operator Half();
+	//operator Word();
 };
 
 union Half{
@@ -20,9 +23,9 @@ union Half{
 	unsigned short ui;
 	struct { unsigned char b0, b1; };
 	Half(short _t = 0) :i(_t) {}
-	operator short() {
-		return i;
-	}
+	operator short() { return i; }
+	//operator Byte();
+	//operator Word();
 };
 
 union Word {
@@ -30,26 +33,23 @@ union Word {
 	unsigned int ui;
 	struct { unsigned char b0, b1, b2, b3; };
 	Word(int _t = 0) :i(_t) {}
-	operator int() {
-		return i;
-	}
+	operator int() { return i; }
+	//operator Byte();
+	//operator Half();
 };
+//
+//Byte::operator Half() { return Half(i); }
+//Byte::operator Word() { return Word(i); }
+//Half::operator Byte() { return b0; }
+//Half::operator Word() { return Word(i); }
+//Word::operator Byte() { return b0; }
+//Word::operator Half() { return Half(i); }
 
-union LongLong {
-	long long i;
-	unsigned long long ui;
-	struct { char b0, b1, b2, b3, b4, b5, b6, b7; };
-	LongLong(long long  _t = 0) :i(_t) {}
-	operator long long() {
-		return i;
-	}
-};
-
-enum class DataType:char {
+enum class DataType:unsigned char {
 	_ascii, _asciiz, _byte, _half, _word, _space, _align, none
 };
 
-enum class CommandType:char  {
+enum class CommandType:unsigned char  {
 	_add, _addu, _addiu, _sub, _subu,
 	_mul, _mulu, _div, _divu,
 	_xor, _xoru, _neg, _negu, _rem, _remu,
@@ -61,25 +61,82 @@ enum class CommandType:char  {
 	_sb, _sh, _sw,
 	_move, _mfhi, _mflo,
 	_nop, _syscall,
+	_syscall1, _syscall4, _syscall5, _syscall8, _syscall9, _syscall10, _syscall17,
 	none
 };
-//
-//class Command {
-//	friend class MipsParser;
-//	friend class MipsSimulator;
-//	CommandType _type;
-//	Byte rs, rd, rt;
-//	Word cons, address, offset;
-//public:
-//	Command(CommandType c = CommandType::none, Byte r1 = 255, Byte r2 = 255, Byte r3 = 255, Word con = 0, Word ad = -1, Word of = 0)
-//		:_type(c), rs(r1), rd(r2), rt(r3), cons(con), address(ad), offset(of) {}
-//	~Command() = default;
-//#ifdef DEBUG
-//	void out() {
-//		printf("command: %d %d %d %d %d %d %d\n", _type, rs.i, rd.i, rt.i, cons.i, address.i, offset.i);
-//		//	printf("command: %d %d %d\n", _type, address.i, offset.i);
-//	}
-//#endif // DEBUG
-//};
 
 #endif // !__Formats
+
+
+
+/*
+switch () {
+//--------------------------# plus and minus #---------------------
+case CommandType::_add:
+case CommandType::_addu:
+case CommandType::_addiu:
+case CommandType::_sub:
+case CommandType::_subu:
+//--------------------------# mul and div #---------------------
+case CommandType::_mul:
+case CommandType::_mulu:
+case CommandType::_div:
+case CommandType::_divu:
+//------------------------# xor #----------------------
+case CommandType::_xor:
+case CommandType::_xoru:
+//----------------------# negitave #---------------
+case CommandType::_neg:
+case CommandType::_negu:
+//----------------------# %(rest) #---------------
+case CommandType::_rem:
+case CommandType::_remu:
+//----------------------# load imm #---------------
+case CommandType::_li:
+//----------------------# cmp #---------------
+case CommandType::_seq:
+case CommandType::_sge:
+case CommandType::_sgt:
+case CommandType::_sle:
+case CommandType::_slt:
+case CommandType::_sne:
+//----------------------# branch #---------------
+case CommandType::_b:
+case CommandType::_beq:
+case CommandType::_bne:
+case CommandType::_bge:
+case CommandType::_ble:
+case CommandType::_bgt:
+case CommandType::_blt:
+//----------------# branch, cmp with zero #---------------
+case CommandType::_beqz:
+case CommandType::_bnez:
+case CommandType::_bgez:
+case CommandType::_blez:
+case CommandType::_bgtz:
+case CommandType::_bltz:
+//----------------------# jump #---------------
+case CommandType::_j:
+case CommandType::_jr:
+case CommandType::_jal:
+case CommandType::_jalr:
+//----------------------# move #---------------
+case CommandType::_move:
+case CommandType::_mfhi:
+case CommandType::_mflo:
+//----------------------# load #---------------
+case CommandType::_la:
+case CommandType::_lb:
+case CommandType::_lh:
+case CommandType::_lw:
+//----------------------# store #---------------
+case CommandType::_sb:
+case CommandType::_sh:
+case CommandType::_sw:
+case CommandType::_nop:
+case CommandType::_syscall:
+default:
+throw command_not_found();
+}
+*/
+

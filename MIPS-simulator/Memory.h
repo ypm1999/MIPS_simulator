@@ -8,13 +8,13 @@
 
 class Memory {
 private:
-	int used;
-	const int size;
+	unsigned int used;
+	const unsigned int size;
 	Byte *data;
 public:
-	Word getSpace(const int &len, const Byte _data[]);
-	Word getSpace(const int &len, const char _data[]);
-	Word getSpace(const int &len);
+	Word getSpace(const unsigned int &len, const Byte _data[]);
+	Word getSpace(const unsigned int &len, const char _data[]);
+	Word getSpace(const unsigned int &len);
 	Word getSpace(const Byte &_data);
 	Word getSpace(const Half &_data);
 	Word getSpace(const Word &_data);
@@ -23,7 +23,7 @@ public:
 	void writeByte(const Word &address, const Byte &_data);
 	void writeHalf(const Word &address, const Half &_data);
 	void writeWord(const Word &address, const Word &_data);
-	void writeString(const Word &address, const int &len, const string &str);
+	void writeString(const Word &address, const unsigned int &len, const string &str);
 
 	void algin(const int &n);
 
@@ -32,10 +32,12 @@ public:
 	Word getWord(const Word &address) const;
 	string getString(const Word &address) const;
 
-	int top() const;
+	unsigned int top() const { return used; }
+	unsigned int getSize() const { return size; }
+
 	void out() const;
 
-	Memory(int _size = 1024 * 1024 * 4);
+	Memory(unsigned int _size = 1024 * 1024 * 4);
 	~Memory();
 };
 

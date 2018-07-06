@@ -33,24 +33,27 @@ class MipsParser {
 	#endif
 	};
 
-	int codeLimit;
+	
 	string s;
 	Memory *mem;
 	vector< pair<string, vector<Data> > > *data;
 	map<string, vector<int> > *table;
+	
 	map<string, Word> commandMap;
 	map<string, Word> dataMap;
 	map<string, CommandType> commandNameMap;
 	map<string, DataType> dataNameMap;
 	map<string, Byte> regMap;
-
+	unsigned int codeLimit;
 
 	void __initialization();
+
 	string getSingleString(unsigned int &pos) const;
 	bool getData(unsigned int &pos, Data & res) const;
 	bool getCommand(unsigned int &pos);
 	void getDataBlock(unsigned int &pos, vector<Data> &res) const;
 	Word getCommandBlock(unsigned int &pos);
+
 	void getText();
 	void writeData();
 	void matchLabel();
@@ -58,9 +61,10 @@ class MipsParser {
 public:
 	MipsParser(const string &str, Memory *_mem);
 	~MipsParser() = default;
+
 	bool parser();
-	int getLimit() { return codeLimit; }
-	int getAddress(string name);
+	unsigned int getLimit() { return codeLimit; }
+	unsigned int getAddress(string name);
 	string getname(Word address);
 
 #ifdef DEBUG

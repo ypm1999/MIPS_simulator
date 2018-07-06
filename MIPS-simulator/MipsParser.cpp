@@ -1,4 +1,5 @@
 #include "MipsParser.h"
+#include <cassert>
 
 void MipsParser::__initialization() {
 	regMap[""] = -1;
@@ -99,6 +100,7 @@ void MipsParser::__initialization() {
 	commandNameMap["syscall"] = CommandType::_syscall;
 }
 
+
 string MipsParser::getSingleString(unsigned int &pos) const {
 	while (s[pos] == ' ' || s[pos] == ',' || s[pos] == '\t' || s[pos] == '\n' || s[pos] == '\r' || s[pos] == '#') {
 		if (s[pos] == '#')
@@ -176,10 +178,11 @@ bool MipsParser::getData(unsigned int &pos, Data &res) const {
 	string tmp = getSingleString(pos);
 	auto it = dataNameMap.find(tmp);
 	if (it == dataNameMap.end()) {
-		lastpos = pos;
+		pos = lastpos;
 		return false;
 	}
 	res.n = -1;
+	res.data = "";
 	switch ((*it).second) {
 
 	case DataType::_ascii: {
@@ -192,10 +195,10 @@ bool MipsParser::getData(unsigned int &pos, Data &res) const {
 	}
 	case DataType::_byte: {
 		string data = getSingleString(pos);
-		unsigned int lastpos = pos;
+		lastpos = pos;
 		data = getSingleString(pos);
-		while (data[0] >= '0' && data[0] <= '9') {
-			res.data = (char)stoi(data);
+		while (data.length() && (isdigit(data[0]) || (data[0] == '-' && isdigit(data[1])))) {
+			res.data += (char)stoi(data);
 			lastpos = pos;
 			data = getSingleString(pos);		
 		}
@@ -204,11 +207,11 @@ bool MipsParser::getData(unsigned int &pos, Data &res) const {
 	}
 	case DataType::_half: {
 		string data = getSingleString(pos);
-		unsigned int lastpos = pos;
+		lastpos = pos;
 		data = getSingleString(pos);
-		while (data[0] >= '0' && data[0] <= '9') {
-			Half tmp = stoi(data);
-			res.data = tmp.b0;
+		while (data.length() && (isdigit(data[0]) || (data[0] == '-' && isdigit(data[1])))) {
+			Half tmp = (short)stoi(data);
+			res.data += tmp.b0;
 			res.data += tmp.b1;
 			lastpos = pos;
 			data = getSingleString(pos);
@@ -218,11 +221,11 @@ bool MipsParser::getData(unsigned int &pos, Data &res) const {
 	}
 	case DataType::_word: {
 		string data = getSingleString(pos);
-		unsigned int lastpos = pos;
+		lastpos = pos;
 		data = getSingleString(pos);
-		while (data[0] >= '0' && data[0] <= '9') {
+		while (data.length() && (isdigit(data[0]) || (data[0] == '-' && isdigit(data[1])))) {
 			Word tmp = stoi(data);
-			res.data = tmp.b0;
+			res.data += tmp.b0;
 			res.data += tmp.b1;
 			res.data += tmp.b2;
 			res.data += tmp.b3;
@@ -255,7 +258,7 @@ bool MipsParser::getCommand(unsigned int &pos) {
 		pos = lastpos;
 		return false;
 	}
-	Word res1 = (1u << 32) - 1, res2 = 0;
+	Word res1 = 0xffffffff, res2 = 0;
 	res1.b0 = (char)((*it).second);
 	switch ((*it).second) {
 	//rs rd src
@@ -303,7 +306,7 @@ bool MipsParser::getCommand(unsigned int &pos) {
 	case CommandType::_divu: {
 		string rd = getSingleString(pos);
 		string rs = getSingleString(pos);
-		int lastpos = pos;
+		unsigned int lastpos = pos;
 		string rt = getSingleString(pos);
 
 		if (rt[0] == '$' || (rt[0] >= '0' && rt[0] <= '9')) {
@@ -343,9 +346,10 @@ bool MipsParser::getCommand(unsigned int &pos) {
 		break;
 	}
 
-	//label
+	
 	//special for option with label
 	//res.b1 = rs, res1.b2b3 = label, res2 = imm, res2.b0 = rt;
+	//label
 	case CommandType::_b:
 	case CommandType::_j:
 	case CommandType::_jal: {
@@ -410,9 +414,8 @@ bool MipsParser::getCommand(unsigned int &pos) {
 			ad = ad.substr(t + 1);
 			ad.pop_back();
 		}
-		if (ad[0] == '$') {
+		if (ad[0] == '$')
 			res1.b1 = regMap[ad];
-		}
 		else {
 			(*table)[ad].push_back(mem->top());
 			res2 = -1;
@@ -427,7 +430,7 @@ bool MipsParser::getCommand(unsigned int &pos) {
 	default:
 		throw command_not_found(tmp);
 	}
-	mem->getSpace(res1.ui + (unsigned long long)res2.ui <<32);
+	mem->getSpace(res1.ui + ((unsigned long long)res2.ui << 32));
 	return true;
 }
 
@@ -448,13 +451,10 @@ void MipsParser::getDataBlock(unsigned int &pos, vector<Data> &res) const {
 
 Word MipsParser::getCommandBlock(unsigned int &pos) {
 	Word tmp = mem->top();
-	while (getCommand(pos)) {}
+	while (getCommand(pos));
 	return tmp;
 }
 
-MipsParser::MipsParser(const string &str, Memory *_mem) :s(str), mem(_mem) {
-	__initialization();
-}
 
 void MipsParser::getText() {
 	unsigned int pos = 0;
@@ -480,8 +480,9 @@ void MipsParser::getText() {
 			name.pop_back();
 		if (text) {
 			Word ad = getCommandBlock(pos);
+			assert((ad.ui & 7u) == 0);
 			if (name != "")
-				commandMap[name] = ad.i >> 3;
+				commandMap[name] = ad.ui >> 3;
 		}
 		else {
 			pair<string, vector<Data> > res;
@@ -509,7 +510,7 @@ void MipsParser::matchLabel() {
 	for (auto i : *table) {
 		auto &vec = i.second;
 		int tmp = vec.front();
-		if (mem->getWord(tmp+4).i == -1) {
+		if (mem->getWord(tmp + (commandSize >> 1)).i == -1) {
 			auto it = dataMap.find(i.first);
 			if (it == dataMap.end())
 				throw function_not_defined(i.first);
@@ -528,12 +529,17 @@ void MipsParser::matchLabel() {
 	}
 }
 
+
+MipsParser::MipsParser(const string &str, Memory *_mem) :s(str), mem(_mem) {
+	__initialization();
+}
+
 bool MipsParser::parser() {
 	try {
 		data = new vector< pair<string, vector<Data> > >;
 		table = new map<string, vector<int> >;
 		getText();
-		codeLimit = mem->top();
+		codeLimit = mem->top() >> 3;
 		writeData();
 		matchLabel();
 		delete data;
@@ -546,10 +552,10 @@ bool MipsParser::parser() {
 	return true;
 }
 
-int MipsParser::getAddress(string name) {
+unsigned int MipsParser::getAddress(string name) {
 	auto tmp = commandMap.find(name);
 	if (tmp == commandMap.end())
-		return -1;
+		return 0;
 	else
 		return tmp->second;
 }
