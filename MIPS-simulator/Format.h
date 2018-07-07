@@ -1,7 +1,7 @@
 #ifndef __Formats
 #define __Formats
 
-//#define DEBUG
+#define DEBUG
 #include <string>
 const unsigned int commandSize = 8;
 

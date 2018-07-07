@@ -111,9 +111,9 @@ string Memory::getString(const Word &address) const {
 }
 
 
-void Memory::out() const {
-	for (unsigned int i = 0; i < used; i++) {
-		std::cout << (unsigned int)data[i] << " \n"[i % 10 == 0];
+void Memory::out(int start) const {
+	for (unsigned int i = start; i < used; i++) {
+		std::cout << (unsigned int)data[i] << " \n"[(i + 1) % 8 == 0];
 	}
 }
 

@@ -35,7 +35,7 @@ public:
 	unsigned int top() const { return used; }
 	unsigned int getSize() const { return size; }
 
-	void out() const;
+	void out(int start) const;
 
 	Memory(unsigned int _size = 1024 * 1024 * 4);
 	~Memory();

@@ -196,7 +196,6 @@ bool MipsParser::getData(unsigned int &pos, Data &res) const {
 	case DataType::_byte: {
 		string data = getSingleString(pos);
 		lastpos = pos;
-		data = getSingleString(pos);
 		while (data.length() && (isdigit(data[0]) || (data[0] == '-' && isdigit(data[1])))) {
 			res.data += (char)stoi(data);
 			lastpos = pos;
@@ -208,7 +207,6 @@ bool MipsParser::getData(unsigned int &pos, Data &res) const {
 	case DataType::_half: {
 		string data = getSingleString(pos);
 		lastpos = pos;
-		data = getSingleString(pos);
 		while (data.length() && (isdigit(data[0]) || (data[0] == '-' && isdigit(data[1])))) {
 			Half tmp = (short)stoi(data);
 			res.data += tmp.b0;
@@ -222,7 +220,6 @@ bool MipsParser::getData(unsigned int &pos, Data &res) const {
 	case DataType::_word: {
 		string data = getSingleString(pos);
 		lastpos = pos;
-		data = getSingleString(pos);
 		while (data.length() && (isdigit(data[0]) || (data[0] == '-' && isdigit(data[1])))) {
 			Word tmp = stoi(data);
 			res.data += tmp.b0;
@@ -415,7 +412,7 @@ bool MipsParser::getCommand(unsigned int &pos) {
 			ad.pop_back();
 		}
 		if (ad[0] == '$')
-			res1.b1 = regMap[ad];
+			res1.b2 = regMap[ad];
 		else {
 			(*table)[ad].push_back(mem->top());
 			res2 = -1;
@@ -480,7 +477,6 @@ void MipsParser::getText() {
 			name.pop_back();
 		if (text) {
 			Word ad = getCommandBlock(pos);
-			assert((ad.ui & 7u) == 0);
 			if (name != "")
 				commandMap[name] = ad.ui >> 3;
 		}

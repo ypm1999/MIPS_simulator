@@ -30,8 +30,10 @@ int main(int argc, char *argv[]) {
 	unique_ptr<MipsSimulator> program(new MipsSimulator(Parser.get(), mem.get()));
 	Parser->parser();
 #ifdef DEBUG
-	return 0;
-#endif
+	Parser->out();
+	mem->out(8);
+	freopen("CON", "w", stdout);
+#endif // DEBUG
 	if (!program->run())
 		cerr << "Run time error!" << std::endl;
 	else

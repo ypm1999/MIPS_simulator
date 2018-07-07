@@ -58,6 +58,7 @@ bool MipsSimulator::IF(IF_ID &write, bool &mem_access) {
 		throw command_address_error(pc.ui);
 	write.res1 = mem->getWord(pc.ui << 3);
 	write.res2 = mem->getWord((pc.ui << 3) + (commandSize >> 1));
+	code->output(pc.ui);
 	pc.ui++;
 	write.npc = pc;
 	return true;
@@ -125,42 +126,61 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 		write.res.ui = get.res1.b1;
 		break;
 	}
-	//rd,cons / rd,address
+	//rd,cons
 	case CommandType::_li:
+		write.imm = get.res2;
+		write.res.ui = get.res1.b1;
+		break;
+	// rd, address
 	case CommandType::_la:
 	case CommandType::_lb:
 	case CommandType::_lh:
-	case CommandType::_lw: {
+	case CommandType::_lw:
+		if (get.res1.b2 != 255u) {
+			if (!getReg(get, get.res1.b1, write.imm))
+				return false;
+			write.imm.ui += get.res2.i;
+		}
+		else
+			write.imm = get.res2;
 		write.res.ui = get.res1.b1;
-		write.imm = get.res2;
 		break;
-	}
 	case CommandType::_sb:
 	case CommandType::_sh:
-	case CommandType::_sw: {
+	case CommandType::_sw:
 		if (!getReg(get, get.res1.b1, write.a))
 			return false;
-		write.imm = get.res2;
+		if (get.res1.b2 != 255u) {
+			if (!getReg(get, get.res1.b2, write.imm))
+				return false;
+			write.imm.ui += get.res2.i;
+		}
+		else
+			write.imm = get.res2;
 		break;
-	}
 	//rd
 	case CommandType::_mfhi:
 	case CommandType::_mflo:
 		write.res.ui = get.res1.b1;
 	case CommandType::_jr:
-	case CommandType::_jalr: {
 		if (!getReg(get, get.res1.b1, write.imm))
 			return false;
 		break;
-	}
+	case CommandType::_jalr:
+		if (!getReg(get, get.res1.b1, write.imm))
+			return false;
+		write.res.ui = 31u;
+		break;
 
 	//label
 	case CommandType::_b:
 	case CommandType::_j:
-	case CommandType::_jal: {
-		write.imm.ui = ((unsigned int)get.res1.b2 << 8) + (unsigned int)get.res1.b3;
+		write.imm.ui = ((unsigned int)get.res1.b3 << 8) + (unsigned int)get.res1.b2;
 		break;
-	}
+	case CommandType::_jal:
+		write.imm.ui = ((unsigned int)get.res1.b3 << 8) + (unsigned int)get.res1.b2;
+		write.res.ui = 31u;
+		break;
 
 	//rs label
 	case CommandType::_beqz:
@@ -171,7 +191,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 	case CommandType::_bltz: {
 		if (!getReg(get, get.res1.b1, write.a))
 			return false;
-		write.imm.ui = ((unsigned int)get.res1.b2 << 8) + (unsigned int)get.res1.b3;
+		write.imm.ui = ((unsigned int)get.res1.b3 << 8) + (unsigned int)get.res1.b2;
 		break;
 	}
 
@@ -190,7 +210,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 		}
 		else
 			write.b = get.res2;
-		write.imm.ui = ((unsigned int)get.res1.b2 << 8) + (unsigned int)get.res1.b3;
+		write.imm.ui = ((unsigned int)get.res1.b3 << 8) + (unsigned int)get.res1.b2;
 		break;
 	}
 	case CommandType::_syscall: {
@@ -434,7 +454,7 @@ bool MipsSimulator::EX(ID_EX &get, EX_MEM  &write) {
 	//----------------------# jump #---------------
 	// b/j/jal/jr/jalr will jumb after ID;
 	// so they don't need record address.
-	case CommandType::_jr:
+	case CommandType::_jal:
 	case CommandType::_jalr:
 		write.address = get.npc;
 		break;
@@ -484,7 +504,7 @@ bool MipsSimulator::MEM(EX_MEM &get, MEM_WB &write, bool &mem_access) {
 	write.res = get.res;
 	mem_access = false;
 	switch (get.com) {
-	//----------------------# load #-------------------
+		//----------------------# load #-------------------
 	case CommandType::_lb:
 		write.result = (Word)mem->getByte(get.address);
 		break;
@@ -494,7 +514,7 @@ bool MipsSimulator::MEM(EX_MEM &get, MEM_WB &write, bool &mem_access) {
 	case CommandType::_lw:
 		write.result = (Word)mem->getWord(get.address);
 		break;
-	//----------------------# store #---------------
+		//----------------------# store #---------------
 	case CommandType::_sb:
 		mem->writeByte(get.address, (Byte)get.ALUout);
 		break;
@@ -504,9 +524,9 @@ bool MipsSimulator::MEM(EX_MEM &get, MEM_WB &write, bool &mem_access) {
 	case CommandType::_sw:
 		mem->writeWord(get.address, (Word)get.ALUout);
 		break;
-	//----------------------# syscall #---------------
+		//----------------------# syscall #---------------
 	case CommandType::_syscall1:
-		cout <<  get.ALUout.i;
+		cout << get.ALUout.i;
 		break;
 	case CommandType::_syscall4:
 		cout << mem->getString(get.address);
@@ -526,8 +546,8 @@ bool MipsSimulator::MEM(EX_MEM &get, MEM_WB &write, bool &mem_access) {
 		break;
 	default:
 		mem_access = true;
-		if((get.com >= CommandType::_beq && get.com <= CommandType::_bltz)
-			|| get.com == CommandType::_li || get.com == CommandType::_la)
+		if ((get.com >= CommandType::_beq && get.com <= CommandType::_bltz)
+			|| (get.com >= CommandType::_jal && get.com <= CommandType::_la))
 			write.result = get.address;
 		else
 			write.result = get.ALUout;
@@ -575,6 +595,11 @@ bool MipsSimulator::run() {
 			if (IDEX.res.ui != 255u) {
 				IFID.EXreg = EXMEM.res;
 				IFID.EXdata = EXMEM.ALUout;
+				if ((EXMEM.com >= CommandType::_beq && EXMEM.com <= CommandType::_bltz)
+					|| (EXMEM.com >= CommandType::_jal && EXMEM.com <= CommandType::_la))
+					IFID.EXdata = EXMEM.address;
+				else
+					IFID.EXdata = EXMEM.ALUout;
 			}
 			else {
 				switch(EXMEM.com){
