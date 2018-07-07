@@ -22,7 +22,7 @@ class MipsSimulator {
 
 		if (com.address.i != -1) ad = com.address;
 		else ad = reg[com.rd.ui].i + com.offset.i;
-
+		cout << code->getcom(com._type) << endl;
 		switch (com._type){
 		//--------------------------# plus and minus #---------------------
 		case CommandType::_add:

@@ -464,6 +464,12 @@ public:
 #endif
 		return true;
 	}
+	string getcom(const CommandType &com) {
+		for (auto i : commandNameMap)
+			if (i.second == com)
+				return i.first;
+		return "none";
+	}
 	string getname(Word address) {
 		for (auto j : commandMap)
 			if (j.second.i == address.i)

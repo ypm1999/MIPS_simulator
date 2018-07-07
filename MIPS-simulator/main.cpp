@@ -10,6 +10,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 	freopen("code.in", "r", stdin);
+	freopen("code.out", "w", stdout);
 #ifdef DEBUG
 	
 	freopen("code.out", "w", stdout);
