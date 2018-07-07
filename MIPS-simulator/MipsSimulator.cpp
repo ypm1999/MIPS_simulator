@@ -52,20 +52,20 @@ bool MipsSimulator::getReg(const IF_ID &in, const unsigned char id, Word &res) c
 
 
 bool MipsSimulator::IF(IF_ID &write, bool &mem_access) {
-	if (pc.ui == 0 || !mem_access)
+	if (!mem_access || write.res1.b0 != (char)CommandType::none)
 		return false;
 	if (pc.ui > code->getLimit())
 		throw command_address_error(pc.ui);
 	write.res1 = mem->getWord(pc.ui << 3);
 	write.res2 = mem->getWord((pc.ui << 3) + (commandSize >> 1));
-	code->output(pc.ui);
+	//code->output(pc.ui);
 	pc.ui++;
 	write.npc = pc;
 	return true;
 }
 
 bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
-	if ((CommandType)get.res1.b0 == CommandType::none)
+	if ((CommandType)get.res1.b0 == CommandType::none || write.com != CommandType::none)
 		return false;
 	write.npc = get.npc;
 	write.com = (CommandType)get.res1.b0;
@@ -137,7 +137,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 	case CommandType::_lh:
 	case CommandType::_lw:
 		if (get.res1.b2 != 255u) {
-			if (!getReg(get, get.res1.b1, write.imm))
+			if (!getReg(get, get.res1.b2, write.imm))
 				return false;
 			write.imm.ui += get.res2.i;
 		}
@@ -202,7 +202,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 	case CommandType::_ble:
 	case CommandType::_bgt:
 	case CommandType::_blt: {
-		if (!getReg(get, get.res1.b1 & 0x3f, write.a))
+		if (!getReg(get, get.res1.b1 & 0x3fu, write.a))
 			return false;
 		if (get.res1.b1 & (1u << 7u)) {
 			if (!getReg(get, get.res2.b0, write.b))
@@ -228,7 +228,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 			write.com = CommandType::_syscall4;
 			break;
 		case 5:
-			write.res.ui = 2;
+			write.res.ui = 2u;
 			write.com = CommandType::_syscall5;
 			break;
 		case 8:
@@ -241,7 +241,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 		case 9:
 			if (!getReg(get, 4u, write.a))
 				return false;
-			write.res.ui = 2;
+			write.res.ui = 2u;
 			write.com = CommandType::_syscall9;
 			break;
 		case 10:
@@ -255,6 +255,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 		default:
 			throw run_command_error(string("syscall with code ") + std::to_string(write.a.i));
 		}
+		break;
 	}
 	case CommandType::_nop:
 		break;
@@ -269,7 +270,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 }
 
 bool MipsSimulator::EX(ID_EX &get, EX_MEM  &write) {
-	if (get.com == CommandType::none)
+	if (get.com == CommandType::none || write.com != CommandType::none)
 		return false;
 	write.com = get.com;
 	write.res = get.res;
@@ -294,8 +295,8 @@ bool MipsSimulator::EX(ID_EX &get, EX_MEM  &write) {
 			write.ALUout.i = get.a.i * get.b.i;
 		else {
 			unsigned long long t = 1ll * get.a.i * get.b.i;
-			hi.ui = t >> 32;
-			lo.ui = (unsigned int)t;
+			hi.i = t >> 32;
+			lo.i = (unsigned int)t;
 		}
 		break;
 	case CommandType::_mulu:
@@ -491,14 +492,14 @@ bool MipsSimulator::EX(ID_EX &get, EX_MEM  &write) {
 		break;
 	//case CommandType::_nop:
 	default:
-		break;
+break;
 	}
 	get.init();
 	return true;
 }
 
 bool MipsSimulator::MEM(EX_MEM &get, MEM_WB &write, bool &mem_access) {
-	if (get.com == CommandType::none || !mem_access)
+	if (get.com == CommandType::none || write.com != CommandType::none)
 		return false;
 	write.com = get.com;
 	write.res = get.res;
@@ -546,8 +547,7 @@ bool MipsSimulator::MEM(EX_MEM &get, MEM_WB &write, bool &mem_access) {
 		break;
 	default:
 		mem_access = true;
-		if ((get.com >= CommandType::_beq && get.com <= CommandType::_bltz)
-			|| (get.com >= CommandType::_jal && get.com <= CommandType::_la))
+		if (get.com >= CommandType::_jal && get.com <= CommandType::_la)
 			write.result = get.address;
 		else
 			write.result = get.ALUout;
@@ -572,90 +572,77 @@ bool MipsSimulator::WB(MEM_WB &get) {
 
 bool MipsSimulator::run() {
 	__init();
-	while (pc.i != 0) {
+	int filedCounter = 0;
+	while (filedCounter < 5) {
 		bool mem_access = true;
-		WB(MEMWB);
+		if (pc.ui != 0) {
+			IF(IFID, mem_access);
+			ID(IFID, IDEX);
+			if (IDEX.com >= CommandType::_b && IDEX.com <= CommandType::_jalr)
+				pc = IDEX.imm;
+			EX(IDEX, EXMEM);
+			if (EXMEM.com >= CommandType::_beq && EXMEM.com <= CommandType::_bltz)
+				pc = EXMEM.address;
+			MEM(EXMEM, MEMWB, mem_access);
+			WB(MEMWB);
+		}
+		else
+			filedCounter = 5;
+		continue;
+		filedCounter = 0;
+		if (!WB(MEMWB))
+			filedCounter++;
 
 		if (MEM(EXMEM, MEMWB, mem_access)) {
-			if (EXMEM.res.ui != 255u) {
-				switch (EXMEM.com) {
-				case CommandType::_lb:
-				case CommandType::_lh:
-				case CommandType::_lw:
-					IFID.load = MEMWB.res;
-					break;
-				default:
-					IFID.MEMreg = MEMWB.res;
-					IFID.MEMdata = MEMWB.result;
-				}
-			}
+			IFID.MEMreg = MEMWB.res;
+			IFID.MEMdata = MEMWB.result;
 		}
+		else
+			filedCounter++;
 
 		if (EX(IDEX, EXMEM)) {
-			if (IDEX.res.ui != 255u) {
-				IFID.EXreg = EXMEM.res;
-				IFID.EXdata = EXMEM.ALUout;
-				if ((EXMEM.com >= CommandType::_beq && EXMEM.com <= CommandType::_bltz)
-					|| (EXMEM.com >= CommandType::_jal && EXMEM.com <= CommandType::_la))
-					IFID.EXdata = EXMEM.address;
-				else
-					IFID.EXdata = EXMEM.ALUout;
-			}
-			else {
-				switch(EXMEM.com){
-				case CommandType::_beq:
-				case CommandType::_bne:
-				case CommandType::_bge:
-				case CommandType::_ble:
-				case CommandType::_bgt:
-				case CommandType::_blt:
-				case CommandType::_beqz:
-				case CommandType::_bnez:
-				case CommandType::_bgez:
-				case CommandType::_blez:
-				case CommandType::_bgtz:
-				case CommandType::_bltz:
-					if (IFID.npc.ui - 1 != EXMEM.address.ui) {
-						IFID.init();
-						pc = EXMEM.address;
-					}
-					break;
-				default:
-					break;
-				}
-			}
-		}
-
-		if (ID(IFID, IDEX)) {
-			switch (IDEX.com) {
-			case CommandType::_b:
-			case CommandType::_j:
-			case CommandType::_jal:
-			case CommandType::_jr:
-			case CommandType::_jalr:
-				pc = IDEX.imm;
+			switch (EXMEM.com) {
+			case CommandType::_lb:
+			case CommandType::_lh:
+			case CommandType::_lw:
+			case CommandType::_syscall5:
+			case CommandType::_syscall9:
+				IFID.load = EXMEM.res;
 				break;
-			case CommandType::_beq:
-			case CommandType::_bne:
-			case CommandType::_bge:
-			case CommandType::_ble:
-			case CommandType::_bgt:
-			case CommandType::_blt:
-			case CommandType::_beqz:
-			case CommandType::_bnez:
-			case CommandType::_bgez:
-			case CommandType::_blez:
-			case CommandType::_bgtz:
-			case CommandType::_bltz:
-				if(IDEX.imm < pc)
-					pc = IDEX.imm;
+			case CommandType::_jal:
+			case CommandType::_jalr:
+			case CommandType::_li:
+			case CommandType::_la:
+				IFID.EXreg = EXMEM.res;
+				IFID.EXdata = EXMEM.address;
 				break;
 			default:
+				IFID.EXreg = EXMEM.res;
+				IFID.EXdata = EXMEM.ALUout;
 				break;
 			}
+			if (EXMEM.com >= CommandType::_beq && EXMEM.com <= CommandType::_bltz
+				&& IFID.npc.ui - 1 != EXMEM.address.ui) {
+				IFID.init();
+				pc = EXMEM.address;
+			}
 		}
+		else
+			filedCounter++;
+
+		if (ID(IFID, IDEX)) {
+			if ((IDEX.com >= CommandType::_b && IDEX.com <= CommandType::_jalr)
+				|| (IDEX.com >= CommandType::_beq && IDEX.com <= CommandType::_bltz && IDEX.imm < pc))
+				pc = IDEX.imm;
+		}
+		else
+			filedCounter++;
 		
-		IF(IFID, mem_access);
+		if(pc.ui != 0)
+			IF(IFID, mem_access);
+		else
+			filedCounter++;
+
 	}
 	return pc == 0;
 }

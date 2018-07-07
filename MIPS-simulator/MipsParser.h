@@ -116,10 +116,10 @@ public:
 			case CommandType::_sb:
 			case CommandType::_sh:
 			case CommandType::_sw:
-				if (res1.b1 == 255u)
+				if (res1.b2 == 255u)
 					printf("$%u %s(%u)", res1.b1, getdata(res2.ui).c_str(), res2.ui);
 				else
-					printf("$%u %d", res1.b1, res2.i);
+					printf("$%u $%u %d", res1.b1, res1.b2, res2.i);
 				break;
 
 			case CommandType::_jr:
@@ -140,9 +140,9 @@ public:
 			case CommandType::_blt:
 				lebal = ((unsigned int)res1.b3 << 8) + (unsigned int)res1.b2;
 				if(res1.b1 & (1 << 7))
-					printf("$%u $%u %s(%u)", res1.b1, res2.b0, getname(lebal.ui).c_str(), lebal.ui);
+					printf("$%u $%u %s(%u)", res1.b1 & 0x3f, res2.b0, getname(lebal.ui).c_str(), lebal.ui);
 				else
-					printf("$%u %u %s(%u)", res1.b1, res2.ui, getname(lebal.ui).c_str(), lebal.ui);
+					printf("$%u %u %s(%u)", res1.b1 & 0x3f, res2.ui, getname(lebal.ui).c_str(), lebal.ui);
 				break;
 			case CommandType::_beqz:
 			case CommandType::_bnez:

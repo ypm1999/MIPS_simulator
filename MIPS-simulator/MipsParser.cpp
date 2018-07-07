@@ -316,11 +316,11 @@ bool MipsParser::getCommand(unsigned int &pos) {
 		}
 		else {
 			pos = lastpos;
-			res1.b2 = regMap[rs];
-			if (rd[0] == '$')
-				res1.b3 = regMap[rd];
+			res1.b2 = regMap[rd];
+			if (rs[0] == '$')
+				res1.b3 = regMap[rs];
 			else
-				res2 = stoi(rd);
+				res2 = stoi(rs);
 		}
 		break;
 	}
