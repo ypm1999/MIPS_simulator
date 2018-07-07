@@ -58,7 +58,7 @@ bool MipsSimulator::IF(IF_ID &write, bool &mem_access) {
 		throw command_address_error(pc.ui);
 	write.res1 = mem->getWord(pc.ui << 3);
 	write.res2 = mem->getWord((pc.ui << 3) + (commandSize >> 1));
-	//code->output(pc.ui);
+	code->output(pc.ui);
 	pc.ui++;
 	write.npc = pc;
 	return true;
@@ -67,8 +67,6 @@ bool MipsSimulator::IF(IF_ID &write, bool &mem_access) {
 bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 	if ((CommandType)get.res1.b0 == CommandType::none || write.com != CommandType::none)
 		return false;
-	write.npc = get.npc;
-	write.com = (CommandType)get.res1.b0;
 	switch ((CommandType)get.res1.b0) {
 	//rs rd src
 	case CommandType::_add:
@@ -263,6 +261,8 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 	default:
 		throw command_not_found(std::to_string(get.res1.b0));
 	}
+	write.npc = get.npc;
+	write.com = (CommandType)get.res1.b0;
 	if(write.res.ui != 255u)
 		regLock[write.res.ui] = true;
 	get.init();
@@ -543,7 +543,7 @@ bool MipsSimulator::MEM(EX_MEM &get, MEM_WB &write, bool &mem_access) {
 	}
 	case CommandType::_syscall9:
 		mem->algin(2);
-		write.result = mem->getSpace(get.ALUout);
+		write.result = mem->getSpace(get.ALUout.ui);
 		break;
 	default:
 		mem_access = true;
@@ -575,7 +575,9 @@ bool MipsSimulator::run() {
 	int filedCounter = 0;
 	while (filedCounter < 5) {
 		bool mem_access = true;
+		
 		if (pc.ui != 0) {
+			
 			IF(IFID, mem_access);
 			ID(IFID, IDEX);
 			if (IDEX.com >= CommandType::_b && IDEX.com <= CommandType::_jalr)
@@ -584,11 +586,15 @@ bool MipsSimulator::run() {
 			if (EXMEM.com >= CommandType::_beq && EXMEM.com <= CommandType::_bltz)
 				pc = EXMEM.address;
 			MEM(EXMEM, MEMWB, mem_access);
+			if (MEMWB.com >= CommandType::_syscall) {
+				//mem->out(code->codeLimit << 3);
+			}
 			WB(MEMWB);
 		}
 		else
 			filedCounter = 5;
 		continue;
+		
 		filedCounter = 0;
 		if (!WB(MEMWB))
 			filedCounter++;

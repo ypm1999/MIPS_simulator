@@ -81,6 +81,8 @@ public:
 			Word lebal = 0;
 			CommandType com = (CommandType)res1.b0;
 			std::cout << getcom(com) << "  ";
+			//std::cout << getcom(com) << std::endl;
+			//return;
 			switch (com) {
 			case CommandType::_add:
 			case CommandType::_addu:

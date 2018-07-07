@@ -7,7 +7,7 @@
 #include "Exceptions.h"
 
 class Memory {
-private:
+public:
 	unsigned int used;
 	const unsigned int size;
 	Byte *data;

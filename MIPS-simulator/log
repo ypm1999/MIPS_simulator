@@ -1,0 +1,242 @@
+196,319d195
+< li  $4 $255 $255 6
+< li  $2 $255 $255 9
+< syscall  
+< li  $4 $255 $255 1
+< sw  $4 $2 0
+< add  $2 $2 $255 4
+< li  $4 $255 $255 48
+< sb  $4 $2 0
+< jr  $31
+< sw  $2 $30 -92
+< lw  $8 $30 -92
+< li  $2 $255 $255 4
+< move  $4 $8 $255 0
+< syscall  
+< 0lw  $8 $30 -4
+< add  $8 $8 $255 1
+< move  $8 $8 $255 0
+< sw  $8 $30 -4
+< b  _begin_loop_5(317)
+< lw  $8 _static_1(4272)
+< sub  $9 $8 $255 4
+< lw  $10 $9 0
+< lw  $11 $30 -4
+< bge  $11 $10 _end_loop_5(339)
+< lw  $8 $30 -4
+< mul  $9 $8 $255 4
+< lw  $10 _static_1(4272)
+< add  $11 $10 $9 0
+< lw  $12 $11 0
+< sw  $12 $29 -4
+< jal  _func_____built_in_toString(483)
+< lw  $4 $29 -4
+< li  $8 $255 $255 0
+< bgez  $4 _skip_set_less_than_zero(488)
+< beqz  $4 _set_zero(523)
+< li  $4 $255 $255 6
+< li  $2 $255 $255 9
+< syscall  
+< li  $4 $255 $255 1
+< sw  $4 $2 0
+< add  $2 $2 $255 4
+< li  $4 $255 $255 48
+< sb  $4 $2 0
+< jr  $31
+< sw  $2 $30 -92
+< lw  $8 $30 -92
+< li  $2 $255 $255 4
+< move  $4 $8 $255 0
+< syscall  
+< 0lw  $8 $30 -4
+< add  $8 $8 $255 1
+< move  $8 $8 $255 0
+< sw  $8 $30 -4
+< b  _begin_loop_5(317)
+< lw  $8 _static_1(4272)
+< sub  $9 $8 $255 4
+< lw  $10 $9 0
+< lw  $11 $30 -4
+< bge  $11 $10 _end_loop_5(339)
+< lw  $8 $30 -4
+< mul  $9 $8 $255 4
+< lw  $10 _static_1(4272)
+< add  $11 $10 $9 0
+< lw  $12 $11 0
+< sw  $12 $29 -4
+< jal  _func_____built_in_toString(483)
+< lw  $4 $29 -4
+< li  $8 $255 $255 0
+< bgez  $4 _skip_set_less_than_zero(488)
+< beqz  $4 _set_zero(523)
+< li  $4 $255 $255 6
+< li  $2 $255 $255 9
+< syscall  
+< li  $4 $255 $255 1
+< sw  $4 $2 0
+< add  $2 $2 $255 4
+< li  $4 $255 $255 48
+< sb  $4 $2 0
+< jr  $31
+< sw  $2 $30 -92
+< lw  $8 $30 -92
+< li  $2 $255 $255 4
+< move  $4 $8 $255 0
+< syscall  
+< 0lw  $8 $30 -4
+< add  $8 $8 $255 1
+< move  $8 $8 $255 0
+< sw  $8 $30 -4
+< b  _begin_loop_5(317)
+< lw  $8 _static_1(4272)
+< sub  $9 $8 $255 4
+< lw  $10 $9 0
+< lw  $11 $30 -4
+< bge  $11 $10 _end_loop_5(339)
+< la  $8 _static_2(4268)
+< move  $9 $8 $255 0
+< li  $2 $255 $255 4
+< move  $4 $9 $255 0
+< syscall  
+< la  $8 _static_0(4260)
+< li  $2 $255 $255 4
+< move  $4 $8 $255 0
+< syscall  
+< 
+< lw  $8 $30 0
+< li  $9 $255 $255 0
+< sw  $8 _static_1(4272)
+< sw  $9 $30 -4
+< lw  $8 _static_1(4272)
+< sub  $9 $8 $255 4
+< lw  $10 $9 0
+< lw  $11 $30 -4
+< bge  $11 $10 _end_func_main(374)
+< lw  $8 $30 -4
+< mul  $9 $8 $255 4
+< lw  $10 _static_1(4272)
+< add  $11 $10 $9 0
+< lw  $12 $11 0
+< sw  $12 $29 -4
+< jal  _func_____built_in_toString(483)
+< lw  $4 $29 -4
+< li  $8 $255 $255 0
+< bgez  $4 _skip_set_less_than_zero(488)
+< beqz  $4 _set_zero(523)
+356,357c232,233
+< sw  $2 $30 -128
+< lw  $8 $30 -128
+---
+> sw  $2 $30 -92
+> lw  $8 $30 -92
+365c241
+< b  _begin_loop_6(352)
+---
+> b  _begin_loop_5(317)
+370c246
+< bge  $11 $10 _end_func_main(374)
+---
+> bge  $11 $10 _end_loop_5(339)
+418,419c294,295
+< sw  $2 $30 -128
+< lw  $8 $30 -128
+---
+> sw  $2 $30 -92
+> lw  $8 $30 -92
+423c299
+< 2lw  $8 $30 -4
+---
+> 1lw  $8 $30 -4
+427c303
+< b  _begin_loop_6(352)
+---
+> b  _begin_loop_5(317)
+432c308
+< bge  $11 $10 _end_func_main(374)
+---
+> bge  $11 $10 _end_loop_5(339)
+480,481c356,357
+< sw  $2 $30 -128
+< lw  $8 $30 -128
+---
+> sw  $2 $30 -92
+> lw  $8 $30 -92
+485c361
+< 3lw  $8 $30 -4
+---
+> 1lw  $8 $30 -4
+489c365
+< b  _begin_loop_6(352)
+---
+> b  _begin_loop_5(317)
+494,526c370,374
+< bge  $11 $10 _end_func_main(374)
+< lw  $8 $30 -4
+< mul  $9 $8 $255 4
+< lw  $10 _static_1(4272)
+< add  $11 $10 $9 0
+< lw  $12 $11 0
+< sw  $12 $29 -4
+< jal  _func_____built_in_toString(483)
+< lw  $4 $29 -4
+< li  $8 $255 $255 0
+< bgez  $4 _skip_set_less_than_zero(488)
+< beqz  $4 _set_zero(523)
+< li  $9 $255 $255 0
+< move  $10 $4 $255 0
+< move  $11 $4 $255 0
+< li  $13 $255 $255 10
+< div  $255 $10 $13 0
+< mflo  $2 $255 $255 0
+< mfhi  $3 $255 $255 0
+< bgtz  $2 _not_yet(499)
+< bgtz  $3 _not_yet(499)
+< add  $9 $9 $255 1
+< move  $10 $2 $255 0
+< j  _begin_count_digit(493)
+< div  $255 $10 $13 0
+< mflo  $2 $255 $255 0
+< mfhi  $3 $255 $255 0
+< bgtz  $2 _not_yet(499)
+< bgtz  $3 _not_yet(499)
+< j  _yet(502)
+< beqz  $8 _skip_reserve_neg(504)
+< add  $4 $9 $255 5
+< li  $2 $255 $255 9
+---
+> bge  $11 $10 _end_loop_5(339)
+> la  $8 _static_2(4268)
+> move  $9 $8 $255 0
+> li  $2 $255 $255 4
+> move  $4 $9 $255 0
+528,543c376
+< sw  $9 $2 0
+< add  $2 $2 $255 4
+< add  $9 $9 $2 0
+< sb  $0 $9 0
+< sub  $9 $9 $255 1
+< div  $255 $11 $13 0
+< mfhi  $3 $255 $255 0
+< add  $3 $3 $255 48
+< sb  $3 $9 0
+< sub  $9 $9 $255 1
+< mflo  $11 $255 $255 0
+< bnez  $11 _continue_toString(512)
+< beqz  $8 _skip_place_neg(522)
+< jr  $31
+< sw  $2 $30 -128
+< lw  $8 $30 -128
+---
+> la  $8 _static_0(4260)
+547,551c380,384
+< 4lw  $8 $30 -4
+< add  $8 $8 $255 1
+< move  $8 $8 $255 0
+< sw  $8 $30 -4
+< b  _begin_loop_6(352)
+---
+> 
+> lw  $8 $30 0
+> li  $9 $255 $255 0
+> sw  $8 _static_1(4272)
+> sw  $9 $30 -4
