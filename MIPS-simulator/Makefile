@@ -8,7 +8,12 @@ SRCS = main.cpp
 OBJS = $(SRCS:.c=.o)
 
 $(TARGET):$(OBJS)
-	g++ Memory.cpp MipsParser.cpp MipsSimulator.cpp main.cpp -o code -std=c++11 -O1 -Wall -Wextra -Wconversion
+	g++ -c Memory.cpp -std=c++11 -Wall -Wextra -Wconversion -O2
+	g++ -c MipsParser.cpp -std=c++11 -Wall -Wextra -Wconversion -O2
+	g++ -c MipsSimulator.cpp -std=c++11 -Wall -Wextra -Wconversion -O2
+	g++ -c main.cpp -std=c++11 -Wall -Wextra -Wconversion -O2
+	g++ Memory.o MipsParser.o MipsSimulator.o main.o -o code -std=c++11 -Wall -Wextra -Wconversion -O2
+# -O1 -Wall -Wextra -Wconversion
 #	@echo TARGET:$@
 #	@echo OBJECTS:$^
 #	$(CC) -o $@ $^

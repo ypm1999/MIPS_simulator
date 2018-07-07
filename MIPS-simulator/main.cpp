@@ -6,19 +6,18 @@
 #include "MipsParser.h"
 #include "MipsSimulator.h"
 using std::cerr;
+using std::endl;
 using std::ifstream;
 using std::stringstream;
 using std::unique_ptr;
 
 int main(int argc, char *argv[]) {
-	freopen("code.in", "r", stdin);
-	freopen("code.out", "w", stdout);
 #ifdef DEBUG
-	
-	
+//	freopen("code.in", "r", stdin);
+//	freopen("code.out", "w", stdout);
 #endif
-	//string source(argv[1]);
-	string source("code.s");
+	string source(argv[1]);
+	//string source("code.s");
 	ifstream sourceFile(source);
 	if (!sourceFile.is_open()) {
 		cerr << "Source code file do not exit!" << std::endl;
@@ -34,8 +33,8 @@ int main(int argc, char *argv[]) {
 		cerr << "Run time error!" << std::endl;
 	else
 		if (program->with_returnValue())
-			cerr << source << " return Value is " << program->get_returnValue() << std::endl;
+			cerr << source << " return Value is " << program->get_returnValue() << endl;
 		else
-			cerr << source << " return without returnValue" << std::endl;
+			cerr << source << " return without returnValue" << endl;
 	return 0;
 }

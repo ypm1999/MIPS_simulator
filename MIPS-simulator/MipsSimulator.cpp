@@ -2,6 +2,7 @@
 
 void MipsSimulator::__init() {
 	memset(reg, 0, sizeof(reg));
+	memset(regLock, 0, sizeof(regLock));
 	reg[29].ui = mem->getSize() - 1;
 	pc = code->getAddress("main");
 	if (pc.i == 0)
@@ -39,7 +40,7 @@ bool MipsSimulator::getReg(const IF_ID &in, const unsigned char id, Word &res) c
 		return true;
 	}
 	else {
-		
+
 		if (in.load.ui == id)
 			return false;
 		if (in.EXreg.ui == id) {
@@ -275,6 +276,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 	default:
 		throw command_not_found(std::to_string(get.res1.b0));
 	}
+	//puts("ID");
 	write.npc = get.npc;
 	if(write.com == CommandType::none)
 		write.com = (CommandType)get.res1.b0;
@@ -287,7 +289,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 bool MipsSimulator::EX(ID_EX &get, EX_MEM  &write) {
 	if (get.com == CommandType::none || write.com != CommandType::none)
 		return false;
-	
+//puts("EX");
 	write.com = get.com;
 	write.res = get.res;
 	switch (get.com) {
@@ -509,7 +511,7 @@ bool MipsSimulator::EX(ID_EX &get, EX_MEM  &write) {
 bool MipsSimulator::MEM(EX_MEM &get, MEM_WB &write, bool &mem_access) {
 	if (get.com == CommandType::none || write.com != CommandType::none)
 		return false;
-	
+//puts("MEM");
 	write.com = get.com;
 	write.res = get.res;
 	mem_access = false;
@@ -569,6 +571,7 @@ bool MipsSimulator::WB(MEM_WB &get) {
 	if (get.com == CommandType::none)
 		return false;
 
+		//puts("WB");
 	if (get.res.ui != 255u) {
 		regLock[get.res.ui]--;
 		reg[get.res.ui] = get.result;
@@ -598,7 +601,11 @@ bool MipsSimulator::run() {
 			if (MEMWB.com >= CommandType::_syscall) {
 				//mem->out(code->codeLimit << 3);
 			}
+
 			WB(MEMWB);
+			//for(int i = 0; i <= 31; i++)
+			//	cout << (int)regLock[i];
+			//puts("");
 		}
 		else
 			filedCounter = 5;
@@ -651,7 +658,7 @@ bool MipsSimulator::run() {
 				|| (IDEX.com >= CommandType::_beq && IDEX.com <= CommandType::_bltz && IDEX.imm < pc))
 				pc = IDEX.imm;
 		}
-		else 
+		else
 			filedCounter++;
 
 		if(pc.ui != 0)
