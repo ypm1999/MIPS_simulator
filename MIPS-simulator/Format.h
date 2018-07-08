@@ -12,7 +12,7 @@ union Byte {
 	char i;
 	unsigned char ui;
 	struct { unsigned char b0; };
-	Byte(char _t = 0) :i(_t) {}
+	Byte(char _t = 0) noexcept :i(_t) {}
 	operator unsigned char(){ return (unsigned char)i; }
 	//operator Half();
 	//operator Word();
@@ -22,7 +22,7 @@ union Half{
 	short i;
 	unsigned short ui;
 	struct { unsigned char b0, b1; };
-	Half(short _t = 0) :i(_t) {}
+	Half(short _t = 0) noexcept :i(_t) {}
 	operator short() { return i; }
 	//operator Byte();
 	//operator Word();
@@ -32,7 +32,7 @@ union Word {
 	int i;
 	unsigned int ui;
 	struct { unsigned char b0, b1, b2, b3; };
-	Word(int _t = 0) :i(_t) {}
+	Word(int _t = 0) noexcept :i(_t) {}
 	operator int() { return i; }
 	//operator Byte();
 	//operator Half();
@@ -139,4 +139,3 @@ default:
 throw command_not_found();
 }
 */
-

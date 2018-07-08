@@ -12,15 +12,16 @@ using std::endl;
 class MipsSimulator {
 	MipsParser *code;
 	Memory *mem;
+	bool withReturnValue;
+	int returnValue;
 
 	Word reg[32 + 3];
-	bool regLock[32];
+	char regLock[32];
 	Word &hi = reg[32];
 	Word &lo = reg[33];
 	Word &pc = reg[34];
 
-	bool withReturnValue;
-	int returnValue;
+	
 
 	void __init();
 
@@ -30,7 +31,7 @@ class MipsSimulator {
 		Word npc;
 		Byte load, EXreg, MEMreg;
 		Word EXdata, MEMdata;
-		IF_ID() { init(); }
+		IF_ID() noexcept { init(); }
 		void init();
 	}IFID;
 
@@ -40,7 +41,7 @@ class MipsSimulator {
 		CommandType com;
 		Word a, b, imm;
 		Byte res;
-		ID_EX() { init(); }
+		ID_EX() noexcept { init(); }
 		void init();
 	}IDEX;
 
@@ -49,7 +50,7 @@ class MipsSimulator {
 		CommandType com;
 		Word ALUout, address;
 		Byte res;
-		EX_MEM() { init(); }
+		EX_MEM() noexcept { init(); }
 		void init();
 	}EXMEM;
 
@@ -58,7 +59,7 @@ class MipsSimulator {
 		CommandType com;
 		Word result;
 		Byte res;
-		MEM_WB() { init(); }
+		MEM_WB() noexcept { init(); }
 		void init();
 	}MEMWB;
 
@@ -72,7 +73,7 @@ class MipsSimulator {
 	bool WB(MEM_WB &get);
 
 public:
-	MipsSimulator(MipsParser *_code, Memory *_mem) :code(_code), mem(_mem) {};
+	MipsSimulator(MipsParser *_code, Memory *_mem) :code(_code), mem(_mem), withReturnValue(false), returnValue(0) {};
 
 	bool with_returnValue() { return withReturnValue; }
 	int get_returnValue() { return returnValue; }

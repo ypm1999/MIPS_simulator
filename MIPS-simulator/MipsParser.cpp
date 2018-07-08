@@ -3,7 +3,7 @@
 
 void MipsParser::__initialization() {
 	regMap[""] = -1;
-	for (int i = 0; i < 32; i++)
+	for (unsigned int i = 0; i < 32; i++)
 		regMap[string("$") + std::to_string(i)] = i;
 	regMap["$zero"] = 0;
 	regMap["$at"] = 1;
@@ -199,7 +199,7 @@ bool MipsParser::getData(unsigned int &pos, Data &res) const {
 		while (data.length() && (isdigit(data[0]) || (data[0] == '-' && isdigit(data[1])))) {
 			res.data += (char)stoi(data);
 			lastpos = pos;
-			data = getSingleString(pos);		
+			data = getSingleString(pos);
 		}
 		pos = lastpos;
 		break;
@@ -343,7 +343,7 @@ bool MipsParser::getCommand(unsigned int &pos) {
 		break;
 	}
 
-	
+
 	//special for option with label
 	//res.b1 = rs, res1.b2b3 = label, res2 = imm, res2.b0 = rt;
 	//label
@@ -477,8 +477,10 @@ void MipsParser::getText() {
 			name.pop_back();
 		if (text) {
 			Word ad = getCommandBlock(pos);
-			if (name != "")
+			if (name != ""){
 				commandMap[name] = ad.ui >> 3;
+			}
+
 		}
 		else {
 			pair<string, vector<Data> > res;
@@ -506,10 +508,11 @@ void MipsParser::matchLabel() {
 	for (auto i : *table) {
 		auto &vec = i.second;
 		int tmp = vec.front();
-		if (mem->getWord(tmp + (commandSize >> 1)).i == -1) {
+		CommandType com = (CommandType)mem->getWord(tmp).b0;
+		if (com >= CommandType::_la && com <= CommandType::_sw) {
 			auto it = dataMap.find(i.first);
 			if (it == dataMap.end())
-				throw function_not_defined(i.first);
+				throw function_not_defined(i.first + "(Data)");
 			for (auto j : vec) {
 				mem->writeWord(j + (commandSize >> 1), (*it).second);
 			}
@@ -526,7 +529,7 @@ void MipsParser::matchLabel() {
 }
 
 
-MipsParser::MipsParser(const string &str, Memory *_mem) :s(str), mem(_mem) {
+MipsParser::MipsParser(const string &str, Memory *_mem) :s(str), mem(_mem), codeLimit(0) {
 	__initialization();
 }
 
@@ -542,7 +545,7 @@ bool MipsParser::parser() {
 		delete table;
 	}
 	catch (...) {
-		std::cerr << "CE£¡ Error in parser!" << endl;
+		std::cerr << "CE!! Error in parser!" << endl;
 		return false;
 	}
 	return true;
@@ -562,4 +565,3 @@ string MipsParser::getname(Word address) {
 			return j.first;
 	return "none";
 }
-

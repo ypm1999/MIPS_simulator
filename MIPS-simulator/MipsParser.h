@@ -23,7 +23,7 @@ class MipsParser {
 		int n;
 		string data;
 	public:
-		Data() :n(-1) {}
+		Data() noexcept :n(-1) {}
 		~Data() = default;
 	};
 

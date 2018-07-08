@@ -12,30 +12,34 @@ void MipsSimulator::__init() {
 void MipsSimulator::IF_ID::init() {
 	res1.b0 = (unsigned char)CommandType::none;
 	load.ui = EXreg.ui = MEMreg.ui = 255u;
+//	EXdata = MEMdata = 0;
 }
 
 void MipsSimulator::ID_EX::init() {
 	com = CommandType::none;
 	res.ui = 255u;
+//	a = b = imm = 0;
 }
 
 void MipsSimulator::EX_MEM::init() {
 	com = CommandType::none;
 	res.ui = 255u;
+//	ALUout = address = 0;
 }
 
 void MipsSimulator::MEM_WB::init() {
 	com = CommandType::none;
+//	result = 0;
 	res.ui = 255u;
 }
 
-
 bool MipsSimulator::getReg(const IF_ID &in, const unsigned char id, Word &res) const {
-	if (!regLock[id]) {
+	if (regLock[id] == 0) {
 		res = reg[id];
 		return true;
 	}
 	else {
+		
 		if (in.load.ui == id)
 			return false;
 		if (in.EXreg.ui == id) {
@@ -43,7 +47,7 @@ bool MipsSimulator::getReg(const IF_ID &in, const unsigned char id, Word &res) c
 			return true;
 		}
 		if(in.MEMreg.ui == id) {
-			res = in.EXdata;
+			res = in.MEMdata;
 			return true;
 		}
 	}
@@ -58,7 +62,9 @@ bool MipsSimulator::IF(IF_ID &write, bool &mem_access) {
 		throw command_address_error(pc.ui);
 	write.res1 = mem->getWord(pc.ui << 3);
 	write.res2 = mem->getWord((pc.ui << 3) + (commandSize >> 1));
+#ifdef DEBUG
 	code->output(pc.ui);
+#endif // DEBUG
 	pc.ui++;
 	write.npc = pc;
 	return true;
@@ -160,6 +166,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 	case CommandType::_mfhi:
 	case CommandType::_mflo:
 		write.res.ui = get.res1.b1;
+		break;
 	case CommandType::_jr:
 		if (!getReg(get, get.res1.b1, write.imm))
 			return false;
@@ -243,12 +250,19 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 			write.com = CommandType::_syscall9;
 			break;
 		case 10:
-			write.com = CommandType::_syscall10;
+			withReturnValue = false;
+			pc = 0;
+			get.init();
+			return true;
 			break;
 		case 17:
 			if (!getReg(get, 4u, write.a))
 				return false;
-			write.com = CommandType::_syscall17;
+			returnValue = write.a;
+			withReturnValue = true;
+			pc = 0;
+			get.init();
+			return true;
 			break;
 		default:
 			throw run_command_error(string("syscall with code ") + std::to_string(write.a.i));
@@ -262,9 +276,10 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 		throw command_not_found(std::to_string(get.res1.b0));
 	}
 	write.npc = get.npc;
-	write.com = (CommandType)get.res1.b0;
+	if(write.com == CommandType::none)
+		write.com = (CommandType)get.res1.b0;
 	if(write.res.ui != 255u)
-		regLock[write.res.ui] = true;
+		regLock[write.res.ui]++;
 	get.init();
 	return true;
 }
@@ -272,6 +287,7 @@ bool MipsSimulator::ID(IF_ID &get, ID_EX &write) {
 bool MipsSimulator::EX(ID_EX &get, EX_MEM  &write) {
 	if (get.com == CommandType::none || write.com != CommandType::none)
 		return false;
+	
 	write.com = get.com;
 	write.res = get.res;
 	switch (get.com) {
@@ -295,8 +311,8 @@ bool MipsSimulator::EX(ID_EX &get, EX_MEM  &write) {
 			write.ALUout.i = get.a.i * get.b.i;
 		else {
 			unsigned long long t = 1ll * get.a.i * get.b.i;
-			hi.i = t >> 32;
-			lo.i = (unsigned int)t;
+			hi.ui = (unsigned int)(t >> 32);
+			lo.ui = (unsigned int)t;
 		}
 		break;
 	case CommandType::_mulu:
@@ -304,7 +320,7 @@ bool MipsSimulator::EX(ID_EX &get, EX_MEM  &write) {
 			write.ALUout.ui = get.a.ui * get.b.ui;
 		else {
 			unsigned long long t = 1llu * get.a.ui * get.b.ui;
-			hi.ui = t >> 32;
+			hi.ui = (unsigned int)(t >> 32);
 			lo.ui = (unsigned int)t;
 		}
 		break;
@@ -481,18 +497,10 @@ bool MipsSimulator::EX(ID_EX &get, EX_MEM  &write) {
 		write.address = get.a;
 		write.ALUout = get.b;
 		break;
-	case CommandType::_syscall10:
-		withReturnValue = false;
-		pc = 0;
-		break;
-	case CommandType::_syscall17:
-		returnValue = get.a;
-		withReturnValue = true;
-		pc = 0;
-		break;
+
 	//case CommandType::_nop:
 	default:
-break;
+		break;
 	}
 	get.init();
 	return true;
@@ -501,6 +509,7 @@ break;
 bool MipsSimulator::MEM(EX_MEM &get, MEM_WB &write, bool &mem_access) {
 	if (get.com == CommandType::none || write.com != CommandType::none)
 		return false;
+	
 	write.com = get.com;
 	write.res = get.res;
 	mem_access = false;
@@ -561,7 +570,7 @@ bool MipsSimulator::WB(MEM_WB &get) {
 		return false;
 
 	if (get.res.ui != 255u) {
-		regLock[get.res.ui] = false;
+		regLock[get.res.ui]--;
 		reg[get.res.ui] = get.result;
 	}
 
@@ -575,9 +584,9 @@ bool MipsSimulator::run() {
 	int filedCounter = 0;
 	while (filedCounter < 5) {
 		bool mem_access = true;
-		
+/*
 		if (pc.ui != 0) {
-			
+
 			IF(IFID, mem_access);
 			ID(IFID, IDEX);
 			if (IDEX.com >= CommandType::_b && IDEX.com <= CommandType::_jalr)
@@ -594,8 +603,9 @@ bool MipsSimulator::run() {
 		else
 			filedCounter = 5;
 		continue;
-		
+*/
 		filedCounter = 0;
+		IFID.load = IFID.EXreg = IFID.MEMreg = 255u;
 		if (!WB(MEMWB))
 			filedCounter++;
 
@@ -641,9 +651,9 @@ bool MipsSimulator::run() {
 				|| (IDEX.com >= CommandType::_beq && IDEX.com <= CommandType::_bltz && IDEX.imm < pc))
 				pc = IDEX.imm;
 		}
-		else
+		else 
 			filedCounter++;
-		
+
 		if(pc.ui != 0)
 			IF(IFID, mem_access);
 		else

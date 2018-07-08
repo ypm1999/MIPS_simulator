@@ -115,9 +115,10 @@ void Memory::out(int start) const {
 	for (unsigned int i = start; i < used; i++) {
 		std::cout << (unsigned int)data[i] << " \n"[(i + 1) % 8 == 0];
 	}
+	puts("--------------------------");
 }
 
-Memory::Memory(unsigned int _size) :used(commandSize), size(_size) {
+Memory::Memory(unsigned int _size) noexcept :used(commandSize), size(_size) {
 	data = new Byte[_size];
 	memset(data, 0, size);
 }

@@ -12,9 +12,10 @@ using std::unique_ptr;
 
 int main(int argc, char *argv[]) {
 	freopen("code.in", "r", stdin);
+	freopen("code.out", "w", stdout);
 #ifdef DEBUG
 	
-	//freopen("code.out", "w", stdout);
+	
 #endif
 	//string source(argv[1]);
 	string source("code.s");
@@ -29,11 +30,6 @@ int main(int argc, char *argv[]) {
 	unique_ptr<MipsParser> Parser(new MipsParser(buffer.str(), mem.get()));
 	unique_ptr<MipsSimulator> program(new MipsSimulator(Parser.get(), mem.get()));
 	Parser->parser();
-#ifdef DEBUG
-	//Parser->out();
-	//mem->out(8);
-	//freopen("CON", "w", stdout);
-#endif // DEBUG
 	if (!program->run())
 		cerr << "Run time error!" << std::endl;
 	else

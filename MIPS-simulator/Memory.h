@@ -37,7 +37,7 @@ public:
 
 	void out(int start) const;
 
-	Memory(unsigned int _size = 1024 * 1024 * 4);
+	Memory(unsigned int _size = 1024 * 1024 * 4) noexcept;
 	~Memory();
 };
 
