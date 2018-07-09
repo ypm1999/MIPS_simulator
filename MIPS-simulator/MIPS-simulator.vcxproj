@@ -121,6 +121,7 @@
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="MipsParser.cpp" />
     <ClCompile Include="MipsSimulator.cpp" />
+    <ClCompile Include="Register.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exceptions.h" />
@@ -128,6 +129,7 @@
     <ClInclude Include="Memory.h" />
     <ClInclude Include="MipsSimulator.h" />
     <ClInclude Include="MipsParser.h" />
+    <ClInclude Include="Register.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Data\test-data\1.s" />

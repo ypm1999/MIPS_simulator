@@ -3,10 +3,10 @@ import os
 import sys
 import platform
 
-exe = "./code"
+exe = "code.exe "
 
 header1 = "./testsuit-1/"
-header2 = "./test-data/"
+header2 = "test-data/"
 cases = [
     "lvalue2-5110379024-wuhang",
     "gcd-5090379042-jiaxiao",
@@ -56,15 +56,15 @@ else:
 
 def testCase(header, name):
     argList = []
-    argList.append('/usr/bin/time -f " %Us " ' + exe)
-    argList.append(header + name + '.s')
+    #argList.append('/usr/bin/time -f " %Us " ' + exe)
+    argList.append(exe + header + name + '.s')
     if os.path.isfile(header + name + '.in'):
         argList.append(' < ' + header + name + '.in')
     argList.append(' > ' + name + '.out')
 
     # run
     cmd = " ".join(argList)
-    #print "\n" + cmd + "\n"
+    print "\n" + cmd + "\n"
     os.system(cmd)
 
     # compare

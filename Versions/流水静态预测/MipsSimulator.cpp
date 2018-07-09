@@ -7,7 +7,6 @@ bool MipsSimulator::IF_ID::empty(){
 
 void MipsSimulator::IF_ID::init() {
 	res1.b0 = (unsigned char)CommandType::none;
-	npc = 0;
 }
 
 bool MipsSimulator::ID_EX::empty(){
@@ -39,18 +38,17 @@ void MipsSimulator::MEM_WB::init() {
 
 
 bool MipsSimulator::getBranch(unsigned int i) {
-	i &= addressBIT;
-//	return BHT[i];
-	return BHT[(i << pridLen) + BH[i]];
+	i &= BIT;
+	return BHT[i << 1] == 1;
 }
 
 void MipsSimulator::changeBranch(unsigned int i, bool sta) {
-	i &= addressBIT;
-//	BHT[i] = sta;
-//	return;
-	BHT[(i << pridLen) + BH[i]] = sta;
-	BH[i] = ((BH[i] << 1) | sta) & pridBIT;
+	i = (i & BIT) << 1;
+	BHT[i] = BHT[i + 1];
+	BHT[i + 1] = sta;
 }
+
+bool MipsSimulator::getAddress
 
 
 bool MipsSimulator::getReg(const IF_ID &in, const unsigned char id, Word &res) const {
@@ -145,7 +143,6 @@ bool MipsSimulator::ID(const IF_ID &get, ID_EX &write) {
 	//rd,cons
 	case CommandType::_li:
 		write.imm = get.res2;
-		write.a.ui = 0;
 		write.res.ui = get.res1.b1;
 		break;
 	// rd, address
@@ -156,24 +153,24 @@ bool MipsSimulator::ID(const IF_ID &get, ID_EX &write) {
 		if (get.res1.b2 != 255u) {
 			if (!getReg(get, get.res1.b2, write.imm))
 				return false;
-			write.a.ui = get.res2.i;
+			write.imm.ui += get.res2.i;
 		}
 		else
-			write.imm = get.res2, write.a.ui = 0;
+			write.imm = get.res2;
 		write.res.ui = get.res1.b1;
 		break;
 	case CommandType::_sb:
 	case CommandType::_sh:
 	case CommandType::_sw:
-		if (!getReg(get, get.res1.b1, write.b))
+		if (!getReg(get, get.res1.b1, write.a))
 			return false;
 		if (get.res1.b2 != 255u) {
 			if (!getReg(get, get.res1.b2, write.imm))
 				return false;
-			write.a.ui = get.res2.i;
+			write.imm.ui += get.res2.i;
 		}
 		else
-			write.imm = get.res2, write.a.ui = 0;
+			write.imm = get.res2;
 		break;
 	//rd
 	case CommandType::_mfhi:
@@ -276,7 +273,7 @@ bool MipsSimulator::ID(const IF_ID &get, ID_EX &write) {
 			return true;
 			break;
 		default:
-			throw run_command_error(string("syscall with code ") + std::to_string(write.imm.i));
+			throw run_command_error(string("syscall with code ") + std::to_string(write.a.i));
 		}
 		break;
 	}
@@ -374,13 +371,13 @@ bool MipsSimulator::EX(const ID_EX &get, EX_MEM  &write) {
 	case CommandType::_lb:
 	case CommandType::_lh:
 	case CommandType::_lw:
-		write.address.ui = get.imm.ui + get.a.ui;
+		write.address = get.imm;
 		break;
 	case CommandType::_sb:
 	case CommandType::_sh:
 	case CommandType::_sw:
-		write.address.ui = get.imm.ui + get.a.ui;
-		write.ALUout = get.b;
+		write.address = get.imm;
+		write.ALUout = get.a;
 		break;
 	//----------------------# cmp #---------------
 	case CommandType::_seq:
@@ -573,10 +570,9 @@ bool MipsSimulator::WB(const MEM_WB &get) {
 	return true;
 }
 
-static int cnt1 = 0, cnt2 = 0, pri[1 << 16];
 //controler
 bool MipsSimulator::tik_tok() {
-	bool memAccess = true, finish = true;
+	bool memAccess = true, finish = true;;
 	IFID.load = IFID.EXreg = IFID.MEMreg = 255u;
 
 
@@ -618,14 +614,10 @@ bool MipsSimulator::tik_tok() {
 			IFID.EXdata = EXMEM.ALUout;
 			break;
 		}
-		if (EXMEM.com >= CommandType::_beq && EXMEM.com <= CommandType::_bltz){
-			if (IFID.npc.ui - 1 != EXMEM.address.ui) {
-				IFID.init();
-				pc = EXMEM.address;
-			}
-			cnt1++;
-			cnt2 += (pri[IDEX.npc.ui - 1] == (IDEX.npc.ui != EXMEM.address.ui));
-			changeBranch(IDEX.npc.ui - 1, EXMEM.address.ui != IDEX.npc.ui);
+		if (EXMEM.com >= CommandType::_beq && EXMEM.com <= CommandType::_bltz
+			&& IFID.npc.ui - 1 != EXMEM.address.ui) {
+			IFID.init();
+			pc = EXMEM.address;
 		}
 		IDEX.init();
 		finish = false;
@@ -634,20 +626,14 @@ bool MipsSimulator::tik_tok() {
 	
 	if (!IFID.empty() && IDEX.empty()) {
 		if (ID(IFID, IDEX)) {
-			if (IDEX.com >= CommandType::_b && IDEX.com <= CommandType::_jalr)
+			if ((IDEX.com >= CommandType::_b && IDEX.com <= CommandType::_jalr)
+				|| (IDEX.com >= CommandType::_beq && IDEX.com <= CommandType::_bltz && IDEX.imm < pc))
 				pc = IDEX.imm;
-			pri[IDEX.npc.ui - 1] = 0;
-			//if (IDEX.com >= CommandType::_beq && IDEX.com <= CommandType::_bltz && IDEX.npc.ui > IDEX.imm) {
-			if (IDEX.com >= CommandType::_beq && IDEX.com <= CommandType::_bltz && getBranch(IDEX.npc.ui - 1)) {
-				pc = IDEX.imm;
-				pri[IDEX.npc.ui - 1] = 1;
-			}
 			IFID.init();
 		}
 		finish = false;
 	}
 
-	memAccess = true;
 	if (pc.ui != 0 && memAccess && IFID.empty())
 		IF(IFID), finish = false;
 
@@ -660,15 +646,12 @@ bool MipsSimulator::run(Word Entry, unsigned int len, Memory *_mem) {
 	memset(regLock, 0, sizeof(regLock));
 	reg[29].ui = _mem->getSize() - 1;
 	BHT.set();
-	memset(BH, 0, sizeof(BH));
 
 	pc = Entry;
 	codeLimit = len,
 	mem = _mem;
 
 	while (tik_tok());
-
-	cerr << endl << cnt1 << " " << cnt2 << " " << 100.0 * cnt2 / cnt1 << endl;
 
 	return pc == 0;
 }

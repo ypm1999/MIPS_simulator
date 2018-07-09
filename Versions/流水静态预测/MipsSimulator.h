@@ -24,12 +24,8 @@ class MipsSimulator {
 	Word &lo = reg[33];
 	Word &pc = reg[34];
 
-	static const unsigned int addressLen = 10;
-	static const unsigned int addressBIT = (1 << addressLen) - 1;
-	static const unsigned int pridLen = 8;
-	static const unsigned int pridBIT = (1 << pridLen) - 1;
-	bitset<1 << (10 + pridLen)> BHT;
-	unsigned char BH[1 << 10];
+	static const unsigned int BIT = 1023;
+	bitset<1 << (10 + 1)> BHT;
 
 	class IF_ID {
 		friend class MipsSimulator;

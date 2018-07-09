@@ -10,13 +10,7 @@ using std::unique_ptr;
 void runCode(string);
 
 int main(int argc, char *argv[]) {
-#ifndef DEBUG
-	std::ios::sync_with_stdio(false);
-	cin.tie(false);
-	cout.tie(false);
-#endif // !DEBUG
-
-	freopen("code.in", "r", stdin);
+	//freopen("code.in", "r", stdin);
 	freopen("code.out", "w", stdout);
 	runCode("code.s");
 	//runCode(argv[1]);
