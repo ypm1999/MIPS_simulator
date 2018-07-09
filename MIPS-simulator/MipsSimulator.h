@@ -17,7 +17,7 @@ class MipsSimulator {
 	Memory *mem;
 	bool withReturnValue;
 	int returnValue;
-	
+
 	Word reg[32 + 3];
 	bool regLock[32];
 	Word &hi = reg[32];
@@ -26,10 +26,10 @@ class MipsSimulator {
 
 	static const unsigned int addressLen = 10;
 	static const unsigned int addressBIT = (1 << addressLen) - 1;
-	static const unsigned int pridLen = 8;
+	static const unsigned int pridLen = 6;
 	static const unsigned int pridBIT = (1 << pridLen) - 1;
-	bitset<1 << (10 + pridLen)> BHT;
-	unsigned char BH[1 << 10];
+	bitset<1 << (addressLen + pridLen)> BHT;
+	unsigned char BH[1 << addressLen];
 
 	class IF_ID {
 		friend class MipsSimulator;
@@ -92,5 +92,7 @@ public:
 	int get_returnValue() { return returnValue; }
 	bool run(Word _Entry, unsigned int len, Memory *_mem);
 };
+
+
 
 #endif // !__MipsSimulator

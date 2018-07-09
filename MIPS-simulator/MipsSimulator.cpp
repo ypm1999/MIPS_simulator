@@ -573,7 +573,30 @@ bool MipsSimulator::WB(const MEM_WB &get) {
 	return true;
 }
 
-static int cnt1 = 0, cnt2 = 0, pri[1 << 16];
+int cnt1 = 0, cnt2 = 0, pri[1 << 16];
+
+
+bool MipsSimulator::run(Word Entry, unsigned int len, Memory *_mem) {
+	memset(reg, 0, sizeof(reg));
+	memset(regLock, 0, sizeof(regLock));
+	reg[29].ui = _mem->getSize() - 1;
+	BHT.set();
+	memset(BH, 0, sizeof(BH));
+
+	pc = Entry;
+	codeLimit = len,
+	mem = _mem;
+
+	while (tik_tok());
+
+#ifdef DEBUG
+	#include <fstream>
+	std::ofstream out("logout", std::ios::app);
+	out << cnt1 << " " << cnt2 << " " << 100.0 * cnt2 / cnt1 << endl;
+#endif
+	return pc == 0;
+}
+
 //controler
 bool MipsSimulator::tik_tok() {
 	bool memAccess = true, finish = true;
@@ -587,7 +610,7 @@ bool MipsSimulator::tik_tok() {
 
 	if (memAccess && !EXMEM.empty() && MEMWB.empty()) {
 		MEM(EXMEM, MEMWB);
-		if ((IDEX.com >= CommandType::_lb && IDEX.com <= CommandType::_sw) || 
+		if ((IDEX.com >= CommandType::_lb && IDEX.com <= CommandType::_sw) ||
 			IDEX.com >= CommandType::_syscall5 || IDEX.com >= CommandType::_syscall9)
 			memAccess = false;
 		IFID.MEMreg = MEMWB.res;
@@ -620,18 +643,20 @@ bool MipsSimulator::tik_tok() {
 		}
 		if (EXMEM.com >= CommandType::_beq && EXMEM.com <= CommandType::_bltz){
 			if (IFID.npc.ui - 1 != EXMEM.address.ui) {
+				if(!IFID.empty())
+					cnt2--;
 				IFID.init();
 				pc = EXMEM.address;
 			}
 			cnt1++;
-			cnt2 += (pri[IDEX.npc.ui - 1] == (IDEX.npc.ui != EXMEM.address.ui));
+			cnt2++;
 			changeBranch(IDEX.npc.ui - 1, EXMEM.address.ui != IDEX.npc.ui);
 		}
 		IDEX.init();
 		finish = false;
 	}
-	
-	
+
+
 	if (!IFID.empty() && IDEX.empty()) {
 		if (ID(IFID, IDEX)) {
 			if (IDEX.com >= CommandType::_b && IDEX.com <= CommandType::_jalr)
@@ -653,22 +678,4 @@ bool MipsSimulator::tik_tok() {
 
 
 	return !finish;
-}
-
-bool MipsSimulator::run(Word Entry, unsigned int len, Memory *_mem) {
-	memset(reg, 0, sizeof(reg));
-	memset(regLock, 0, sizeof(regLock));
-	reg[29].ui = _mem->getSize() - 1;
-	BHT.set();
-	memset(BH, 0, sizeof(BH));
-
-	pc = Entry;
-	codeLimit = len,
-	mem = _mem;
-
-	while (tik_tok());
-
-	cerr << endl << cnt1 << " " << cnt2 << " " << 100.0 * cnt2 / cnt1 << endl;
-
-	return pc == 0;
 }

@@ -1,0 +1,5 @@
+TEST  case 1    
+1d0
+< ./test-data/1.s
+/usr/bin/time -f " %Us " ./code ./test-data/1.s  < ./test-data/1.in  > 1.out
+

@@ -3,10 +3,10 @@ import os
 import sys
 import platform
 
-exe = "code.exe "
+exe = "./code"
 
 header1 = "./testsuit-1/"
-header2 = "test-data/"
+header2 = "./test-data/"
 cases = [
     "lvalue2-5110379024-wuhang",
     "gcd-5090379042-jiaxiao",
@@ -42,10 +42,10 @@ cases = [
 
 # command config
 if platform.system() == "Linux":
-    delete = "rm"
+    delete = "rm -rf "
     compare = "diff -Z"
 elif platform.system() == "Darwin":
-    delete = "rm"
+    delete = "rm -rf "
     compare = "diff -w -B"
 elif platform.system() == "Windows":
     delete = "del"
@@ -56,15 +56,15 @@ else:
 
 def testCase(header, name):
     argList = []
-    #argList.append('/usr/bin/time -f " %Us " ' + exe)
-    argList.append(exe + header + name + '.s')
+    argList.append('/usr/bin/time -f " %Us " ' + exe)
+    argList.append(header + name + '.s')
     if os.path.isfile(header + name + '.in'):
         argList.append(' < ' + header + name + '.in')
     argList.append(' > ' + name + '.out')
 
     # run
     cmd = " ".join(argList)
-    print "\n" + cmd + "\n"
+    #print cmd + "\n"
     os.system(cmd)
 
     # compare
@@ -72,7 +72,6 @@ def testCase(header, name):
     return ret == 0
 
 def main():
-    os.system(" ".join((delete, "*.out")))
 
     if len(sys.argv) == 3:
         start = eval(sys.argv[1])
@@ -91,8 +90,7 @@ def main():
         print "passed\n"
 
 def testall():
-	os.system(" ".join((delete, "*.out")))
-	for i in range(1, 60):
+	for i in range(1, 61):
 		print "TEST  case %-5s" % str(i)
 		sys.stdout.flush()
 		if not testCase(header2, str(i)):
@@ -101,4 +99,17 @@ def testall():
 		print "passed\n"
 
 if __name__ == '__main__':
+	os.system(" ".join((delete, "*.out")))
+	os.system(" ".join((delete, "logout")))
 	testall()
+	'''
+	infile = open('logout');
+	res1 = 0;
+	res2 = 0;
+	for i in range(1, 60):
+		tmp = infile.readline().split();
+		res1 += int(tmp[0]);
+		res2 += int(tmp[1]);
+	print "Total: %d %d %f" % (res1, res2, 100.0 * res2 / res1);
+	
+	'''
