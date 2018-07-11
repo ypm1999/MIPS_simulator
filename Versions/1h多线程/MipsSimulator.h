@@ -46,11 +46,8 @@ class MipsSimulator {
 	Byte load, EXreg, MEMreg;
 	Word EXdata, MEMdata;
 
-	bool End;
 	atomic<bool> finished;
-	atomic<int> start;
-	mutex EXout, MEMout, m[4], mm;
-	condition_variable ctrl[4];
+	mutex EXout, MEMout;
 	
 
 	class IF_ID {
@@ -104,11 +101,10 @@ class MipsSimulator {
 	void MEM(const EX_MEM & get, MEM_WB & write);
 	void WB(const MEM_WB & get);
 
-	void thread0();
 	void thread1();
 	void thread2();
 	void thread3();
-	
+	void thread4();
 
 	void tik_tok();
 

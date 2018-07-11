@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{359F9A2A-D7E7-46EA-80FB-247E77CB2B79}</ProjectGuid>
+    <ProjectGuid>{388B636A-113C-4EF6-BBD3-49A5C069CA3E}</ProjectGuid>
     <RootNamespace>MIPSsimulator</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -98,7 +98,6 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -113,7 +112,6 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -121,77 +119,13 @@
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="MipsParser.cpp" />
     <ClCompile Include="MipsSimulator.cpp" />
-    <ClCompile Include="Register.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="Format.h" />
     <ClInclude Include="Memory.h" />
-    <ClInclude Include="MipsSimulator.h" />
     <ClInclude Include="MipsParser.h" />
-    <ClInclude Include="Register.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Data\test-data\1.s" />
-    <None Include="..\Data\test-data\10.s" />
-    <None Include="..\Data\test-data\11.s" />
-    <None Include="..\Data\test-data\12.s" />
-    <None Include="..\Data\test-data\13.s" />
-    <None Include="..\Data\test-data\14.s" />
-    <None Include="..\Data\test-data\15.s" />
-    <None Include="..\Data\test-data\16.s" />
-    <None Include="..\Data\test-data\17.s" />
-    <None Include="..\Data\test-data\18.s" />
-    <None Include="..\Data\test-data\19.s" />
-    <None Include="..\Data\test-data\2.s" />
-    <None Include="..\Data\test-data\20.s" />
-    <None Include="..\Data\test-data\21.s" />
-    <None Include="..\Data\test-data\22.s" />
-    <None Include="..\Data\test-data\23.s" />
-    <None Include="..\Data\test-data\24.s" />
-    <None Include="..\Data\test-data\25.s" />
-    <None Include="..\Data\test-data\26.s" />
-    <None Include="..\Data\test-data\27.s" />
-    <None Include="..\Data\test-data\28.s" />
-    <None Include="..\Data\test-data\29.s" />
-    <None Include="..\Data\test-data\3.s" />
-    <None Include="..\Data\test-data\30.s" />
-    <None Include="..\Data\test-data\31.s" />
-    <None Include="..\Data\test-data\32.s" />
-    <None Include="..\Data\test-data\33.s" />
-    <None Include="..\Data\test-data\34.s" />
-    <None Include="..\Data\test-data\35.s" />
-    <None Include="..\Data\test-data\36.s" />
-    <None Include="..\Data\test-data\37.s" />
-    <None Include="..\Data\test-data\38.s" />
-    <None Include="..\Data\test-data\39.s" />
-    <None Include="..\Data\test-data\4.s" />
-    <None Include="..\Data\test-data\40.s" />
-    <None Include="..\Data\test-data\41.s" />
-    <None Include="..\Data\test-data\42.s" />
-    <None Include="..\Data\test-data\43.s" />
-    <None Include="..\Data\test-data\44.s" />
-    <None Include="..\Data\test-data\45.s" />
-    <None Include="..\Data\test-data\46.s" />
-    <None Include="..\Data\test-data\47.s" />
-    <None Include="..\Data\test-data\48.s" />
-    <None Include="..\Data\test-data\49.s" />
-    <None Include="..\Data\test-data\5.s" />
-    <None Include="..\Data\test-data\50.s" />
-    <None Include="..\Data\test-data\51.s" />
-    <None Include="..\Data\test-data\52.s" />
-    <None Include="..\Data\test-data\53.s" />
-    <None Include="..\Data\test-data\54.s" />
-    <None Include="..\Data\test-data\55.s" />
-    <None Include="..\Data\test-data\56.s" />
-    <None Include="..\Data\test-data\57.s" />
-    <None Include="..\Data\test-data\58.s" />
-    <None Include="..\Data\test-data\59.s" />
-    <None Include="..\Data\test-data\6.s" />
-    <None Include="..\Data\test-data\60.s" />
-    <None Include="..\Data\test-data\7.s" />
-    <None Include="..\Data\test-data\8.s" />
-    <None Include="..\Data\test-data\9.s" />
+    <ClInclude Include="MipsSimulator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,15 +1,13 @@
 	.data
 	.word 1
-_static_67:
+_static_0:
 	.asciiz "\n"
 	.align 2
-	.word 1
-_static_70:
-	.asciiz " "
-	.align 2
-_static_68:
 	.word 0
-_static_69:
+_static_2: 
+	.asciiz ""
+	.align 2
+_static_1:
 	.word 0
 	.data
 _buffer:
@@ -25,6 +23,19 @@ _buffer_init:
 main:
 	jal _buffer_init
 	add $fp, $zero, $sp
+	li $8, 4
+	add $9, $8, 1
+	mul $10, $9, 4
+	li $v0, 9
+	move $a0, $10
+
+	syscall
+	sw $v0, -12($fp)
+	li $8, 4
+	lw $9, -12($fp)
+	sw $8, 0($9)
+	add $10, $9, 4
+	sw $10, _static_1
 	jal _func_main
 	move $a0, $v0
 	li $v0, 17
@@ -41,18 +52,18 @@ _func_____built_in_string_less:
 	sub $12, $11, 4
 	lw $13, 0($12)
 	sw $10, -8($fp)
-	ble $10, $13, _end_if_107
+	ble $10, $13, _end_if_0
 	lw $8, -4($fp)
 	sub $9, $8, 4
 	lw $10, 0($9)
 	sw $10, -8($fp)
-_end_if_107:
+_end_if_0:
 	li $8, 0
 	sw $8, -12($fp)
-_begin_loop_81:
+_begin_loop_0:
 	lw $8, -12($fp)
 	lw $9, -8($fp)
-	bge $8, $9, _end_loop_81
+	bge $8, $9, _end_loop_0
 	lw $8, 0($fp)
 	lw $9, -12($fp)
 	add $10, $8, $9
@@ -62,20 +73,20 @@ _begin_loop_81:
 	lb $14, 0($13)
 	sw $11, -16($fp)
 	sw $14, -20($fp)
-	beq $11, $14, _end_if_108
+	beq $11, $14, _end_if_1
 	lw $8, -16($fp)
 	lw $9, -20($fp)
 	slt $10, $8, $9
 	move $v0, $10
 	sw $10, -76($fp)
 	b _end_func_____built_in_string_less
-_end_if_108:
-_continue_loop81:
+_end_if_1:
+_continue_loop0:
 	lw $8, -12($fp)
 	add $8, $8, 1
 	sw $8, -12($fp)
-	b _begin_loop_81
-_end_loop_81:
+	b _begin_loop_0
+_end_loop_0:
 	lw $8, -4($fp)
 	sub $9, $8, 4
 	lw $10, 0($9)
@@ -101,20 +112,20 @@ _func_____built_in_string_equal:
 	lw $11, -4($fp)
 	sub $12, $11, 4
 	lw $13, 0($12)
-	beq $10, $13, _end_if_109
+	beq $10, $13, _end_if_2
 	move $v0, $zero
 	b _end_func_____built_in_string_equal
-_end_if_109:
+_end_if_2:
 	lw $8, 0($fp)
 	sub $9, $8, 4
 	lw $10, 0($9)
 	li $11, 0
 	sw $10, -12($fp)
 	sw $11, -8($fp)
-_begin_loop_82:
+_begin_loop_1:
 	lw $8, -8($fp)
 	lw $9, -12($fp)
-	bge $8, $9, _end_loop_82
+	bge $8, $9, _end_loop_1
 	lw $8, 0($fp)
 	lw $9, -8($fp)
 	add $10, $8, $9
@@ -122,16 +133,16 @@ _begin_loop_82:
 	lw $12, -4($fp)
 	add $13, $12, $9
 	lb $14, 0($13)
-	beq $11, $14, _end_if_110
+	beq $11, $14, _end_if_3
 	move $v0, $zero
 	b _end_func_____built_in_string_equal
-_end_if_110:
-_continue_loop82:
+_end_if_3:
+_continue_loop1:
 	lw $8, -8($fp)
 	add $8, $8, 1
 	sw $8, -8($fp)
-	b _begin_loop_82
-_end_loop_82:
+	b _begin_loop_1
+_end_loop_1:
 	li $8, 1
 	move $v0, $8
 	b _end_func_____built_in_string_equal
@@ -152,21 +163,21 @@ _func_____built_in_string_inequal:
 	lw $11, -4($fp)
 	sub $12, $11, 4
 	lw $13, 0($12)
-	beq $10, $13, _end_if_111
+	beq $10, $13, _end_if_4
 	li $8, 1
 	move $v0, $8
 	b _end_func_____built_in_string_inequal
-_end_if_111:
+_end_if_4:
 	lw $8, 0($fp)
 	sub $9, $8, 4
 	lw $10, 0($9)
 	li $11, 0
 	sw $10, -12($fp)
 	sw $11, -8($fp)
-_begin_loop_83:
+_begin_loop_2:
 	lw $8, -8($fp)
 	lw $9, -12($fp)
-	bge $8, $9, _end_loop_83
+	bge $8, $9, _end_loop_2
 	lw $8, 0($fp)
 	lw $9, -8($fp)
 	add $10, $8, $9
@@ -174,17 +185,17 @@ _begin_loop_83:
 	lw $12, -4($fp)
 	add $13, $12, $9
 	lb $14, 0($13)
-	beq $11, $14, _end_if_112
+	beq $11, $14, _end_if_5
 	li $8, 1
 	move $v0, $8
 	b _end_func_____built_in_string_inequal
-_end_if_112:
-_continue_loop83:
+_end_if_5:
+_continue_loop2:
 	lw $8, -8($fp)
 	add $8, $8, 1
 	sw $8, -8($fp)
-	b _begin_loop_83
-_end_loop_83:
+	b _begin_loop_2
+_end_loop_2:
 	move $v0, $zero
 	b _end_func_____built_in_string_inequal
 _end_func_____built_in_string_inequal:
@@ -228,18 +239,18 @@ _func_____built_in_string_less_equal:
 	sub $12, $11, 4
 	lw $13, 0($12)
 	sw $10, -8($fp)
-	ble $10, $13, _end_if_113
+	ble $10, $13, _end_if_6
 	lw $8, -4($fp)
 	sub $9, $8, 4
 	lw $10, 0($9)
 	sw $10, -8($fp)
-_end_if_113:
+_end_if_6:
 	li $8, 0
 	sw $8, -12($fp)
-_begin_loop_84:
+_begin_loop_3:
 	lw $8, -12($fp)
 	lw $9, -8($fp)
-	bge $8, $9, _end_loop_84
+	bge $8, $9, _end_loop_3
 	lw $8, 0($fp)
 	lw $9, -12($fp)
 	add $10, $8, $9
@@ -249,20 +260,20 @@ _begin_loop_84:
 	lb $14, 0($13)
 	sw $11, -16($fp)
 	sw $14, -20($fp)
-	beq $11, $14, _end_if_114
+	beq $11, $14, _end_if_7
 	lw $8, -16($fp)
 	lw $9, -20($fp)
 	slt $10, $8, $9
 	move $v0, $10
 	sw $10, -76($fp)
 	b _end_func_____built_in_string_less_equal
-_end_if_114:
-_continue_loop84:
+_end_if_7:
+_continue_loop3:
 	lw $8, -12($fp)
 	add $8, $8, 1
 	sw $8, -12($fp)
-	b _begin_loop_84
-_end_loop_84:
+	b _begin_loop_3
+_end_loop_3:
 	lw $8, 0($fp)
 	sub $9, $8, 4
 	lw $10, 0($9)
@@ -313,7 +324,7 @@ _func_____built_in_println:
 	move $a0, $8
 
 	syscall
-	la $8, _static_67
+	la $8, _static_0
 	move $9, $8
 	li $v0, 4
 	move $a0, $9
@@ -325,353 +336,133 @@ _end_func_____built_in_println:
 	lw $fp, -124($fp)
 	jr $ra
 
-_func_exchange:
-	sw $fp, -172($sp)
-	add $fp, $sp, -4
-	add $sp, $fp, -176
-	sw $ra, 0($sp)
-	lw $8, 0($fp)
-	mul $9, $8, 4
-	lw $10, _static_69
-	add $11, $10, $9
-	lw $12, 0($11)
-	lw $13, -4($fp)
-	mul $14, $13, 4
-	add $15, $10, $14
-	lw $16, 0($15)
-	mul $17, $8, 4
-	add $18, $10, $17
-	sw $16, 0($18)
-	mul $19, $13, 4
-	add $20, $10, $19
-	sw $12, 0($20)
-	sw $12, -8($fp)
-_end_func_exchange:
-	lw $ra, 0($sp)
-	add $sp, $fp, 4
-	lw $fp, -168($fp)
-	jr $ra
-
-_func_makeHeap:
-	sw $fp, -288($sp)
-	add $fp, $sp, -4
-	add $sp, $fp, -292
-	sw $ra, 0($sp)
-	lw $8, _static_68
-	sub $9, $8, 1
-	div $10, $9, 2
-	li $11, 0
-	move $12, $11
-	sw $10, 0($fp)
-	sw $11, -8($fp)
-	sw $12, -4($fp)
-_continue_loop85:
-	lw $8, 0($fp)
-	blt $8, 0, _end_loop_85
-	lw $8, 0($fp)
-	mul $9, $8, 2
-	mul $10, $8, 2
-	add $11, $10, 1
-	lw $12, _static_68
-	slt $13, $11, $12
-	move $14, $13
-	sw $9, -8($fp)
-	sw $14, -40($fp)
-	beqz $14, _short_evaluate_3
-	lw $8, 0($fp)
-	mul $9, $8, 2
-	add $10, $9, 1
-	mul $11, $10, 4
-	lw $12, _static_69
-	add $13, $12, $11
-	lw $14, 0($13)
-	mul $15, $8, 2
-	mul $16, $15, 4
-	add $17, $12, $16
-	lw $18, 0($17)
-	slt $19, $14, $18
-	move $20, $19
-	sw $20, -40($fp)
-_short_evaluate_3:
-	lw $8, -40($fp)
-	beqz $8, _end_if_115
-	lw $8, 0($fp)
-	mul $9, $8, 2
-	add $10, $9, 1
-	sw $10, -8($fp)
-_end_if_115:
-	lw $8, 0($fp)
-	mul $9, $8, 4
-	lw $10, _static_69
-	add $11, $10, $9
-	lw $12, 0($11)
-	lw $13, -8($fp)
-	mul $14, $13, 4
-	add $15, $10, $14
-	lw $16, 0($15)
-	ble $12, $16, _end_if_116
-
-	lw $8, 0($fp)
-	sw $8, -4($sp)
-
-	lw $9, -8($fp)
-	sw $9, -8($sp)
-
-jal _func_exchange
-_end_if_116:
-	lw $8, 0($fp)
-	sub $9, $8, 1
-	sw $9, 0($fp)
-	b _continue_loop85
-_end_loop_85:
-	move $v0, $zero
-	b _end_func_makeHeap
-_end_func_makeHeap:
-	lw $ra, 0($sp)
-	add $sp, $fp, 4
-	lw $fp, -284($fp)
-	jr $ra
-
-_func_adjustHeap:
-	sw $fp, -320($sp)
-	add $fp, $sp, -4
-	add $sp, $fp, -324
-	sw $ra, 0($sp)
-	li $8, 0
-	move $9, $8
-	move $10, $9
-	sw $8, -12($fp)
-	sw $9, -8($fp)
-	sw $10, -4($fp)
-_continue_loop86:
-	lw $8, -4($fp)
-	mul $9, $8, 2
-	lw $10, 0($fp)
-	bge $9, $10, _end_loop_86
-	lw $8, -4($fp)
-	mul $9, $8, 2
-	mul $10, $8, 2
-	add $11, $10, 1
-	lw $12, 0($fp)
-	slt $13, $11, $12
-	move $14, $13
-	sw $9, -8($fp)
-	sw $14, -40($fp)
-	beqz $14, _short_evaluate_4
-	lw $8, -4($fp)
-	mul $9, $8, 2
-	add $10, $9, 1
-	mul $11, $10, 4
-	lw $12, _static_69
-	add $13, $12, $11
-	lw $14, 0($13)
-	mul $15, $8, 2
-	mul $16, $15, 4
-	add $17, $12, $16
-	lw $18, 0($17)
-	slt $19, $14, $18
-	move $20, $19
-	sw $20, -40($fp)
-_short_evaluate_4:
-	lw $8, -40($fp)
-	beqz $8, _end_if_117
-	lw $8, -4($fp)
-	mul $9, $8, 2
-	add $10, $9, 1
-	sw $10, -8($fp)
-_end_if_117:
-	lw $8, -4($fp)
-	mul $9, $8, 4
-	lw $10, _static_69
-	add $11, $10, $9
-	lw $12, 0($11)
-	lw $13, -8($fp)
-	mul $14, $13, 4
-	add $15, $10, $14
-	lw $16, 0($15)
-	ble $12, $16, _else_118
-	lw $8, -4($fp)
-	mul $9, $8, 4
-	lw $10, _static_69
-	add $11, $10, $9
-	lw $12, 0($11)
-	lw $13, -8($fp)
-	mul $14, $13, 4
-	add $15, $10, $14
-	lw $16, 0($15)
-	mul $17, $8, 4
-	add $18, $10, $17
-	sw $16, 0($18)
-	mul $19, $13, 4
-	add $20, $10, $19
-	sw $12, 0($20)
-	sw $12, -16($fp)
-	sw $13, -4($fp)
-	b _end_if_118
-_else_118:
-	b _end_loop_86
-_end_if_118:
-	b _continue_loop86
-_end_loop_86:
-	move $v0, $zero
-	b _end_func_adjustHeap
-_end_func_adjustHeap:
-	lw $ra, 0($sp)
-	add $sp, $fp, 4
-	lw $fp, -316($fp)
-	jr $ra
-
-_func_heapSort:
-	sw $fp, -220($sp)
-	add $fp, $sp, -4
-	add $sp, $fp, -224
-	sw $ra, 0($sp)
-	li $8, 0
-	li $9, 0
-	sw $8, 0($fp)
-	sw $9, -4($fp)
-_begin_loop_87:
-	lw $8, -4($fp)
-	lw $9, _static_68
-	bge $8, $9, _end_loop_87
-	mul $8, $zero, 4
-	lw $9, _static_69
-	add $10, $9, $8
-	lw $11, 0($10)
-	lw $12, _static_68
-	lw $13, -4($fp)
-	sub $14, $12, $13
-	sub $15, $14, 1
-	mul $16, $15, 4
-	add $17, $9, $16
-	lw $18, 0($17)
-	mul $19, $zero, 4
-	add $20, $9, $19
-	sw $18, 0($20)
-	sub $21, $12, $13
-	sub $22, $21, 1
-	mul $23, $22, 4
-	add $24, $9, $23
-	sw $11, 0($24)
-	sub $25, $12, $13
-	sub $8, $25, 1
-	sw $8, -4($sp)
-	sw $11, 0($fp)
-jal _func_adjustHeap
-	sw $v0, -76($fp)
-_continue_loop87:
-	lw $8, -4($fp)
-	add $9, $8, 1
-	sw $9, -4($fp)
-	b _begin_loop_87
-_end_loop_87:
-	move $v0, $zero
-	b _end_func_heapSort
-_end_func_heapSort:
-	lw $ra, 0($sp)
-	add $sp, $fp, 4
-	lw $fp, -216($fp)
-	jr $ra
-
 _func_main:
-	sw $fp, -228($sp)
+	sw $fp, -256($sp)
 	add $fp, $sp, -4
-	add $sp, $fp, -232
+	add $sp, $fp, -260
 	sw $ra, 0($sp)
-
-jal _func_____built_in_getString
-	sw $v0, -4($fp)
-
-	lw $8, -4($fp)
-	sw $8, -4($sp)
-
-jal _func_____built_in_parseInt
-	sw $v0, -8($fp)
-	lw $8, -8($fp)
-	add $9, $8, 1
-	mul $10, $9, 4
+	lw $8, _static_1
+	sub $9, $8, 4
+	lw $10, 0($9)
+	add $11, $10, 1
+	mul $12, $11, 4
 	li $v0, 9
-	move $a0, $10
-	sw $8, _static_68
+	move $a0, $12
+	sw $10, -12($fp)
 	syscall
-	sw $v0, -20($fp)
-	lw $8, _static_68
-	lw $9, -20($fp)
+	sw $v0, -24($fp)
+	lw $8, -12($fp)
+	lw $9, -24($fp)
 	sw $8, 0($9)
 	add $10, $9, 4
 	li $11, 0
-	sw $10, _static_69
-	sw $11, 0($fp)
-_begin_loop_88:
-	lw $8, _static_69
+	sw $10, 0($fp)
+	sw $11, -4($fp)
+_begin_loop_4:
+	lw $8, _static_1
 	sub $9, $8, 4
 	lw $10, 0($9)
-	lw $11, 0($fp)
-	bge $11, $10, _end_loop_88
-	lw $8, 0($fp)
+	lw $11, -4($fp)
+	bge $11, $10, _end_loop_4
+	lw $8, -4($fp)
 	mul $9, $8, 4
-	lw $10, _static_69
+	lw $10, _static_1
 	add $11, $10, $9
-	sw $8, 0($11)
-_continue_loop88:
-	lw $8, 0($fp)
-	add $9, $8, 1
-	sw $9, 0($fp)
-	b _begin_loop_88
-_end_loop_88:
-
-jal _func_makeHeap
-	sw $v0, -56($fp)
-
-jal _func_heapSort
+	sw $zero, 0($11)
+	li $v0, 5
+	syscall
 	sw $v0, -60($fp)
+	lw $8, -4($fp)
+	mul $9, $8, 4
+	lw $10, 0($fp)
+	add $11, $10, $9
+	lw $12, -60($fp)
+	sw $12, 0($11)
+_continue_loop4:
+	lw $8, -4($fp)
+	add $8, $8, 1
+	move $8, $8
+	sw $8, -4($fp)
+	b _begin_loop_4
+_end_loop_4:
 	li $8, 0
-	sw $8, 0($fp)
-_begin_loop_89:
-	lw $8, _static_69
+	sw $8, -4($fp)
+_begin_loop_5:
+	lw $8, _static_1
 	sub $9, $8, 4
 	lw $10, 0($9)
-	lw $11, 0($fp)
-	bge $11, $10, _end_loop_89
-	lw $8, 0($fp)
+	lw $11, -4($fp)
+	bge $11, $10, _end_loop_5
+	lw $8, -4($fp)
 	mul $9, $8, 4
-	lw $10, _static_69
+	lw $10, _static_1
 	add $11, $10, $9
 	lw $12, 0($11)
 	sw $12, -4($sp)
 
 jal _func_____built_in_toString
-	sw $v0, -88($fp)
+	sw $v0, -92($fp)
 
-	lw $8, -88($fp)
+	lw $8, -92($fp)
 	li $v0, 4
 	move $a0, $8
 
 	syscall
-	la $8, _static_70
+_continue_loop5:
+	lw $8, -4($fp)
+	add $8, $8, 1
+	move $8, $8
+	sw $8, -4($fp)
+	b _begin_loop_5
+_end_loop_5:
+	la $8, _static_2
 	move $9, $8
 	li $v0, 4
 	move $a0, $9
 
 	syscall
-_continue_loop89:
+
+	la $8, _static_0
+	li $v0, 4
+	move $a0, $8
+
+	syscall
 	lw $8, 0($fp)
-	add $9, $8, 1
-	sw $9, 0($fp)
-	b _begin_loop_89
-_end_loop_89:
-	la $8, _static_67
-	move $9, $8
+	li $9, 0
+	sw $8, _static_1
+	sw $9, -4($fp)
+_begin_loop_6:
+	lw $8, _static_1
+	sub $9, $8, 4
+	lw $10, 0($9)
+	lw $11, -4($fp)
+	bge $11, $10, _end_loop_6
+	lw $8, -4($fp)
+	mul $9, $8, 4
+	lw $10, _static_1
+	add $11, $10, $9
+	lw $12, 0($11)
+	sw $12, -4($sp)
+
+jal _func_____built_in_toString
+	sw $v0, -128($fp)
+
+	lw $8, -128($fp)
 	li $v0, 4
-	move $a0, $9
+	move $a0, $8
 
 	syscall
-	move $v0, $zero
-	b _end_func_main
+_continue_loop6:
+	lw $8, -4($fp)
+	add $8, $8, 1
+	move $8, $8
+	sw $8, -4($fp)
+	b _begin_loop_6
+_end_loop_6:
 _end_func_main:
 	lw $ra, 0($sp)
 	add $sp, $fp, 4
-	lw $fp, -224($fp)
+	lw $fp, -252($fp)
 	jr $ra
 
 	.text
@@ -812,7 +603,7 @@ _func_____built_in_string_concatenate:
 
 	move $a0, $t3
 	add $a1, $t4, $t0
-	
+
 	jal _string_copy
 
 	move $v0, $t4

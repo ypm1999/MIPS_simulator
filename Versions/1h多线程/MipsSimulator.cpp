@@ -75,7 +75,8 @@ void MipsSimulator::IF(IF_ID &write) {
 	if (pc0.ui > codeLimit)
 		throw command_address_error(pc0.ui);
 #ifdef DEBUG
-	code->output(pc0.ui);
+	if(cnt >= 15267830)
+		code->output(pc0.ui);
 #endif // DEBUG
 	write.res1 = mem->getWord(pc0.ui << 3);
 	write.res2 = mem->getWord((pc0.ui << 3) + (commandSize >> 1));
@@ -559,15 +560,17 @@ void MipsSimulator::MEM(const EX_MEM &get, MEM_WB &write) {
 			write.result = get.ALUout;
 	}
 }
-
+#include <cassert>
 void MipsSimulator::WB(const MEM_WB &get) {
-#ifdef DEBUG
-		if (!regLock[get.res.ui])
-			throw Error("in WB");
-#endif // DEBUG
-		regLock[get.res.ui]--;
-		reg[get.res.ui] = get.result;	
+	if (!regLock[get.res.ui])
+		throw Error("in WB");
+	regLock[get.res.ui]--;
+	reg[get.res.ui] = get.result;
 }
+
+#ifdef DEBUG
+int cnt1 = 0, cnt2 = 0;
+#endif // DEBUG
 
 
 
@@ -582,128 +585,73 @@ bool MipsSimulator::run(Word Entry, unsigned int len, Memory *_mem) {
 	codeLimit = len,
 	mem = _mem;
 
-	End = finished = false;
-	thread th[4];
-	th[0] = thread(&MipsSimulator::thread0, this);
-	th[1] = thread(&MipsSimulator::thread1, this);
-	th[2] = thread(&MipsSimulator::thread2, this);
-	th[3] = thread(&MipsSimulator::thread3, this);
-	
-	while (!finished) {
-		tik_tok();
-	}
-		
-	End = true;
-	for (auto &i : ctrl)
-		i.notify_one();
-	for (auto &i : th)
-		i.join();
+	finished = false;
 
-	cerr << endl << cnt << endl;
+	while (!finished)
+		tik_tok();
+	cerr << endl<< cnt << endl;
 	return pc == 0;
 }
 
 
-void MipsSimulator::thread0() {
-	unique_lock<mutex> lck(m[0]);
-	while (true) {
-		ctrl[0].wait(lck);
-		start++;
-		if (End)
-			break;
-		IFID.init();
-		if (pc.ui != 0 && IFID.empty())
-			IF(IFID), finished = false;
-		mm.lock();
-		cerr << "0lck" << endl;
-		mm.unlock();
-	}
-}
-
 void MipsSimulator::thread1() {
-	unique_lock<mutex> lck(m[1]);
-	while (true) {
-		ctrl[1].wait(lck);
-		start++;
-		if (End)
-			break;
-		if (!MEMWB1.empty())
-			WB(MEMWB1);
-		IDEX.init();
-		if (!IFID1.empty())
-			ID(IFID1, IDEX);
-		mm.lock();
-		cerr << "1lck" << endl;
-		mm.unlock();
-	}
+	IFID.init();
+	if (pc.ui != 0 && IFID.empty())
+		IF(IFID), finished = false;
 }
 
 void MipsSimulator::thread2() {
-	unique_lock<mutex> lck(m[2]);
-	while (true) {
-		ctrl[2].wait(lck);
-		start++;
-		if (End)
-			break;
-		EXMEM.init();
-		if (IDEX1.empty())
-			continue;
-		EX(IDEX1, EXMEM);
-		finished = false;
-		if (EXMEM.res.ui != 255u) {
-			EXreg = EXMEM.res;
-			switch (EXMEM.com) {
-			case CommandType::_lb:
-			case CommandType::_lh:
-			case CommandType::_lw:
-			case CommandType::_syscall5:
-			case CommandType::_syscall9:
-				load = EXMEM.res;
-				break;
-			case CommandType::_jal:
-			case CommandType::_jalr:
-			case CommandType::_li:
-			case CommandType::_la:
-				EXreg = EXMEM.res;
-				EXdata = EXMEM.address;
-				break;
-			default:
-				EXreg = EXMEM.res;
-				EXdata = EXMEM.ALUout;
-				break;
-			}
-		}
-		mm.lock();
-		cerr << "2lck" << endl;
-		mm.unlock();
-	}
+	if(!MEMWB1.empty())
+		WB(MEMWB1);
+	IDEX.init();
+	if(!IFID1.empty())
+		ID(IFID1, IDEX);
 }
 
 void MipsSimulator::thread3() {
-	unique_lock<mutex> lck(m[3]);
-	while (true) {
-		ctrl[3].wait(lck);
-		start++;
-		if (End)
+	EXMEM.init();
+	if (IDEX1.empty())
+		return;
+	EX(IDEX1, EXMEM);
+	if (EXMEM.res.ui != 255u) {
+		EXreg = EXMEM.res;
+		switch (EXMEM.com) {
+		case CommandType::_lb:
+		case CommandType::_lh:
+		case CommandType::_lw:
+		case CommandType::_syscall5:
+		case CommandType::_syscall9:
+			load = EXMEM.res;
 			break;
-		MEMWB.init();
-		if (EXMEM1.empty())
-			continue;
-		MEM(EXMEM1, MEMWB);
-		finished = false;
-		MEMreg = MEMWB.res;
-		MEMdata = MEMWB.result;
-		mm.lock();
-		cerr << "3lck" << endl;
-		mm.unlock();
+		case CommandType::_jal:
+		case CommandType::_jalr:
+		case CommandType::_li:
+		case CommandType::_la:
+			EXreg = EXMEM.res;
+			EXdata = EXMEM.address;
+			break;
+		default:
+			EXreg = EXMEM.res;
+			EXdata = EXMEM.ALUout;
+			break;
+		}
 	}
+}
+
+void MipsSimulator::thread4() {
+	MEMWB.init();
+	if (EXMEM1.empty())
+		return;
+	MEM(EXMEM1, MEMWB);
+	MEMreg = MEMWB.res;
+	MEMdata = MEMWB.result;
 }
 
 
 //controler
 void MipsSimulator::tik_tok() {
 	cnt++;
-//	if (cnt % 10000 == 0)
+	if (cnt % 1000 == 0)
 		cerr << cnt << endl;
 	finished = true;
 	load = EXreg = MEMreg = 255u;
@@ -712,33 +660,28 @@ void MipsSimulator::tik_tok() {
 	IDEX1 = IDEX;
 	EXMEM1 = EXMEM;
 	MEMWB1 = MEMWB;
-
 	bool predictionFiled = false, jump = false;
+
 	if (!EXMEM1.empty() && EXMEM1.res != 255u)
 		MEMout.lock();
 	if (!IDEX1.empty() && IDEX1.res != 255u)
 		EXout.lock();
-	cerr << "--------start-----------" << endl;
-	start = 0;
-	for (auto &i : ctrl)
-		i.notify_one();
+
+	thread th1(&MipsSimulator::thread1, this);
+	thread th2(&MipsSimulator::thread2, this);
+	thread th3(&MipsSimulator::thread3, this);
+	thread th4(&MipsSimulator::thread4, this);
 	
-	while (start < 4)
-		std::this_thread::yield();
-		
-	m[3].lock();
-	cerr << "lock3" << endl;
-	m[3].unlock();
-	
+	th4.join();
 	if (!EXMEM1.empty() && EXMEM1.res != 255u)
 		MEMout.unlock();
-	
-	m[2].lock();
-	cerr << "lock2" << endl;
-	m[2].unlock();
-	
+	th3.join();
 	if (!IDEX1.empty() && IDEX1.res != 255u)
 		EXout.unlock();
+	/*thread4();
+	thread3();
+	thread2();
+	thread1();*/
 	if (EXMEM.com >= CommandType::_beq && EXMEM.com <= CommandType::_bltz) {
 		if (IFID1.npc.ui - 1 != EXMEM.address.ui) {
 			predictionFiled = true;
@@ -746,35 +689,27 @@ void MipsSimulator::tik_tok() {
 		}
 		changeBranch(IDEX.npc.ui - 1, EXMEM.address.ui != IDEX.npc.ui);
 	}
-	
 
-	m[1].lock();
-	cerr << "lock1" << endl;
-	m[1].unlock();
-	
+	th2.join();
 	if (!predictionFiled && (IDEX.com >= CommandType::_b && IDEX.com <= CommandType::_jalr ||
 		IDEX.com >= CommandType::_beq && IDEX.com <= CommandType::_bltz && getBranch(IDEX.npc.ui - 1))) {
 		pc = IDEX.imm;
 		jump = true;
 	}
-	
 
-	m[0].lock();
-	cerr << "lock0" << endl;
-	m[0].unlock();
+	th1.join();
+
 	if (IDEX.com == CommandType::_syscall10 || IDEX.com == CommandType::_syscall17) {
 		IDEX.init();
 		IFID.init();
-		pc = 0;	
+		pc = 0;
 		return;
 	}
-	
 	if (predictionFiled) {
 		if (IDEX.res.ui != 255u)
 			regLock[IDEX.res.ui]--;
 		IDEX.init();
 	}
-
 	if (predictionFiled || jump)
 		IFID.init();
 	else {
@@ -786,6 +721,4 @@ void MipsSimulator::tik_tok() {
 					pc.ui++;
 		}
 	}
-	cerr << "--------end-----------" << endl;
-	finished = false;
 }

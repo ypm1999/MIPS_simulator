@@ -18,10 +18,11 @@ int main(int argc, char *argv[]) {
 	cout.tie(false);
 #endif // !DEBUG
 
-	freopen("1.in", "r", stdin);
+	freopen("code.in", "r", stdin);
 	//freopen("code.out", "w", stdout);
-	runCode("1.s");
+	runCode("code.s");
 	//runCode(argv[1]);
+
 	return 0;
 }
 

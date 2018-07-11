@@ -27,210 +27,22 @@
     <ClCompile Include="MipsSimulator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Register.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MipsSimulator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Memory.h">
+    <ClInclude Include="Exceptions.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Format.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Exceptions.h">
+    <ClInclude Include="Memory.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MipsParser.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Register.h">
+    <ClInclude Include="MipsSimulator.h">
       <Filter>头文件</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Data\test-data\31.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\32.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\33.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\34.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\35.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\36.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\37.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\38.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\39.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\40.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\41.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\42.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\43.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\44.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\45.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\46.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\47.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\48.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\49.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\50.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\51.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\52.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\53.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\54.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\55.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\56.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\57.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\58.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\59.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\60.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\1.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\2.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\3.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\4.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\5.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\6.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\7.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\8.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\9.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\10.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\11.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\12.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\13.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\14.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\15.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\16.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\17.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\18.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\19.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\20.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\21.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\22.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\23.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\24.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\25.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\26.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\27.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\28.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\29.s">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="..\Data\test-data\30.s">
-      <Filter>资源文件</Filter>
-    </None>
   </ItemGroup>
 </Project>
